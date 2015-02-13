@@ -3,13 +3,16 @@ var io = require('socket.io');
 exports.init = function(server) {
 	console.log('Server initialized');
 	io = io.listen(server);
-	var chatInfra;
-	var chatCom;
+	var self = this;
+	this.chatInfra = io.of('/chat_infra');
+	this.chatCom = io.of('/chat_com');
 
-	chatInfra = io.of('/chat_infra').on('connection', function(socket) {
+	this.chatInfra.on('connection', function(socket) {
+		
+		// #2
 		socket.on('set_name', function(data) {
 			console.log('data.name: ' + data.name);
-			chatCom.username = data.name;
+			self.chatCom.username = data.name;
 			socket.emit('name_set', data); // why send back the message? No JSON.Stringify() ?!?!
 			// send a welcome message to the connected client
 			socket.send(JSON.stringify({ // handled by socket.on('message', ...
@@ -18,25 +21,43 @@ exports.init = function(server) {
 			}));
 			socket.broadcast.emit('user_entered', data);
 		});
+
+		// #4
+		socket.on('join_room', function(room) {
+			var userName = self.chatCom.username;
+			socket.join(room.name); 	// _infra joins
+			var comSocket = self.chatCom.connected[socket.id];
+			comSocket.join(room.name); 	// _com joins 
+			comSocket.room = room.name;
+			socket.in(room.name).broadcast.emit('user_entered', {
+				name: userName
+			});
+		});
 	});
 
-	chatCom = io.of('/chat_com').on('connection', function(socket) {
+	
+	this.chatCom.on('connection', function(socket) {
+
 		console.log('Server on connection');
 		// handle client's messages
+
 		socket.on('message', function(message) { // triggered by socket.send
 			console.log('server received messagese');
 			message = JSON.parse(message);
 			// receive user's message
 			if(message.type == 'userMessage') {
-				message.username = chatCom.username;
+				message.username = self.chatCom.username;
 				console.log('message.username: ' + message.username);
 				// send to all the other clients
-				socket.broadcast.send(JSON.stringify(message));
+				socket.in(socket.room).broadcast.send(JSON.stringify(message));
 				// send back the message 
 				message.type = 'myMessage';
 				socket.send(JSON.stringify(message));
 			}
 		});
+
 	});
+
+	// chatCom = io.of('/chat_com')
 
 }
