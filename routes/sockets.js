@@ -40,7 +40,7 @@ exports.init = function(server) {
 			console.log('io.sockets.adapter.rooms: ' + io.sockets.adapter.rooms);
 			console.log('Object.keys(rooms): ' + Object.keys(rooms));
 			for(var room in io.sockets.adapter.rooms) {
-				
+				console.log('room: ' + room);
 				// a filter 
 				if(room.indexOf('/chat_infra/') == 0) { // /chat_infra/ is found
 					var roomName = room.replace("/chat_infra/", "");

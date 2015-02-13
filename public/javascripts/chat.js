@@ -4,7 +4,7 @@ var chatCom = io.connect('/chat_com');
 
 // location.search equals "?room=roomName"
 var roomName = decodeURI(RegExp("room" + '=' + '(.+?)(&|$)').exec(location.search) || [, null][1] );
-
+console.log('roomName: ' + roomName);
 if(roomName) {
 	// #3
 	chatInfra.on('name_set', function(data) {
