@@ -33,6 +33,23 @@ exports.init = function(server) {
 				name: userName
 			});
 		});
+
+		socket.on('get_rooms', function() {
+			console.log('get_rooms received');
+			var rooms = {};
+			console.log('io.sockets.adapter.rooms: ' + io.sockets.adapter.rooms);
+			console.log('Object.keys(rooms): ' + Object.keys(rooms));
+			for(var room in io.sockets.adapter.rooms) {
+				
+				// a filter 
+				if(room.indexOf('/chat_infra/') == 0) { // /chat_infra/ is found
+					var roomName = room.replace("/chat_infra/", "");
+					rooms[roomName] = io.sockets.adapter.rooms[room];
+				}
+			}
+			socket.emit('rooms_list', rooms);
+		});
+
 	});
 
 	

@@ -12,3 +12,9 @@ exports.chatroom = function(req, res) {
 	res.render('chatroom', {
 		title: 'Chat Room Practice'});
 }
+
+exports.rooms = function(req, res) {
+	res.render('rooms', {
+		title: 'Express Chat'
+	});
+}
