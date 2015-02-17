@@ -1,4 +1,4 @@
-var chatInfra = io.connect('/chat_infra');
+var chatInfra = io.connect('/');
 
 chatInfra.on('connect', function() {
 
