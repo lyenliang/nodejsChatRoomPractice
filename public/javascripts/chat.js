@@ -3,9 +3,10 @@ var chatInfra = io.connect('/');
 var chatCom = io.connect('/');
 
 // location.search equals "?room=roomName"
-var roomName = decodeURI(RegExp("room" + '=' + '(.+?)(&|$)').exec(location.search) || [, null][1] );
+var roomName = decodeURI(RegExp("room=([\\w]+)").exec(location.search)[1]);
 console.log('roomName: ' + roomName);
 if(roomName) {
+	roomName = 'room_' + roomName;
 	// #3
 	chatInfra.on('name_set', function(data) {
 		chatInfra.emit('join_room', {

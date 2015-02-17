@@ -37,14 +37,13 @@ exports.init = function(server) {
 		socket.on('get_rooms', function() {
 			console.log('get_rooms received');
 			var rooms = {};
-			console.log('io.sockets.adapter.rooms: ' + io.sockets.adapter.rooms);
+			//console.log('io.sockets.adapter.rooms: ' + io.sockets.adapter.rooms);
 			console.log('Object.keys(io.sockets.adapter.rooms): ' + Object.keys(io.sockets.adapter.rooms));
 			//console.log('Object.keys(io.sockets.adapter.rooms)[0]: ' + Object.keys(io.sockets.adapter.rooms)[0]);
 			for(var room in io.sockets.adapter.rooms) {
-				console.log('room: ' + room);
 				// a filter 
-				if(room.indexOf('/chat_infra/') == 0) { // /chat_infra/ is found
-					var roomName = room.replace("/chat_infra/", "");
+				if(room.indexOf('room_') == 0) { // room_ room name must starts with "room_"
+					var roomName = room.replace("room_", ""); 
 					rooms[roomName] = io.sockets.adapter.rooms[room];
 				}
 			}
