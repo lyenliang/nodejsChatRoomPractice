@@ -19,16 +19,16 @@ exports.init = function(server) {
 				type: 'serverMessage',
 				message: 'Welcome to the chat room made with Express and Socket.io'	
 			}));
-			socket.broadcast.emit('user_entered', data);
 		});
 
 		// #4
 		socket.on('join_room', function(room) {
+			console.log('join_room name: ' + room.name);
 			var userName = self.chatCom.username;
 			socket.join(room.name); 	// _infra joins
 			var comSocket = self.chatCom.connected[socket.id];
-			comSocket.join(room.name); 	// _com joins 
-			comSocket.room = room.name;
+			//comSocket.join(room.name); 	// _com joins 
+			//comSocket.room = room.name;
 			socket.in(room.name).broadcast.emit('user_entered', {
 				name: userName
 			});
@@ -38,7 +38,8 @@ exports.init = function(server) {
 			console.log('get_rooms received');
 			var rooms = {};
 			console.log('io.sockets.adapter.rooms: ' + io.sockets.adapter.rooms);
-			console.log('Object.keys(rooms): ' + Object.keys(rooms));
+			console.log('Object.keys(io.sockets.adapter.rooms): ' + Object.keys(io.sockets.adapter.rooms));
+			//console.log('Object.keys(io.sockets.adapter.rooms)[0]: ' + Object.keys(io.sockets.adapter.rooms)[0]);
 			for(var room in io.sockets.adapter.rooms) {
 				console.log('room: ' + room);
 				// a filter 
