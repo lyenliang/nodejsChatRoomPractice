@@ -4,15 +4,15 @@ exports.init = function(server) {
 	console.log('Server initialized');
 	io = io.listen(server);
 	var self = this;
-	this.chatInfra = io.of('/chat_infra');
-	this.chatCom = io.of('/chat_com');
+	this.chatInfra = io.of('/');
+	this.chatCom = io.of('/');
 
 	this.chatInfra.on('connection', function(socket) {
 		
 		// #2
 		socket.on('set_name', function(data) {
 			console.log('data.name: ' + data.name);
-			self.chatCom.username = data.name;
+			socket.username = data.name;
 			socket.emit('name_set', data); // why send back the message? No JSON.Stringify() ?!?!
 			// send a welcome message to the connected client
 			socket.send(JSON.stringify({ // handled by socket.on('message', ...
@@ -63,7 +63,7 @@ exports.init = function(server) {
 			message = JSON.parse(message);
 			// receive user's message
 			if(message.type == 'userMessage') {
-				message.username = self.chatCom.username;
+				message.username = socket.username;
 				console.log('message.username: ' + message.username);
 				// send to all the other clients
 				socket.in(socket.room).broadcast.send(JSON.stringify(message));

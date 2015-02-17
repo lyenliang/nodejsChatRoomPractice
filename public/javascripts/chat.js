@@ -1,6 +1,6 @@
 // trigger connection event at the server side
-var chatInfra = io.connect('/chat_infra');
-var chatCom = io.connect('/chat_com');
+var chatInfra = io.connect('/');
+var chatCom = io.connect('/');
 
 // location.search equals "?room=roomName"
 var roomName = decodeURI(RegExp("room" + '=' + '(.+?)(&|$)').exec(location.search) || [, null][1] );
@@ -17,18 +17,16 @@ if(roomName) {
 		$('#messages').append('<div class="systemMessage"><b>' + 
 			user.name + '</b> has joined the room.' + '</div>');
 		});
-		chatInfra.on('message', function(data) { // triggered by socket.send
-			// show the received message to the client
-			data = JSON.parse(data);
-			$('#messages').append('<div class="' + data.type + 
-				'">' + data.message + '</div>')
-			
-		});
 
 		chatCom.on('message', function(data) {
 			data = JSON.parse(data);
-			$('#messages').append('<div class="' + data.type + 
+			if(data.type == 'serverMessage') {
+				$('#messages').append('<div class="' + data.type + '">' + data.message + '</div>')
+			} else {
+				$('#messages').append('<div class="' + data.type + 
 					'"><span class="name"><b>' + data.username + "</b>:</span>" + data.message + '</div>');
+			}
+			
 		});
 
 		$('#nameform').hide();
