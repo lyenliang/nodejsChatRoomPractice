@@ -24,7 +24,7 @@ exports.init = function(server) {
 		// #4
 		socket.on('join_room', function(room) {
 			console.log('join_room name: ' + room.name);
-			var userName = self.chatCom.username;
+			var userName = socket.username;
 			socket.join(room.name); 	// _infra joins
 			var comSocket = self.chatCom.connected[socket.id];
 			//comSocket.join(room.name); 	// _com joins 
