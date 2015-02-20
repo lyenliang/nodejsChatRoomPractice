@@ -8,10 +8,14 @@ exports.init = function(server) {
 	io.use(function(socket, next) {
 		var data = socket.request;
 		if(data.headers.cookie) {
+			console.log('has cookie');
+			console.log('data.headers.cookie: ' + data.headers.cookie);
 			data.cookie = require('cookie').parse(data.headers.cookie);
+			console.log('data.cookie: ' + Object.keys(data.cookie));
 			data.sessionID = data.cookie['express.sid'].split('.')[0];
 			data.nickname = data.cookie['nickname'];
 		} else {
+			console.log('no cookie');
 			next(new Error('No cookie transmitted.'));
 		}
 		next();
@@ -38,12 +42,13 @@ exports.init = function(server) {
 		// #4
 		socket.on('join_room', function(room) {
 			console.log('join_room name: ' + room.name);
-			var userName = socket.handshake.nickname;
+			//console.log('socket.handshake: ' + Object.keys(socket.request));
+			var userName = socket.request.nickname;
 			// var userName = socket.username;
-			console.log('userName: ' + userName);
+			//console.log('socket.handshake: ' + socket.handshake);
 			socket.userName = userName;
 			socket.emit('name_set', {
-				name: socket.handshake.nickname
+				name: userName
 			});
 			socket.send(JSON.stringify({
 				type: 'serverMessage',
@@ -52,7 +57,7 @@ exports.init = function(server) {
 			socket.join(room.name); 	// _infra joins
 			var comSocket = self.chatCom.connected[socket.id];
 			//comSocket.join(room.name); 	// _com joins 
-			//comSocket.room = room.name;
+			comSocket.room = room.name;
 			socket.in(room.name).broadcast.emit('user_entered', {
 				name: userName
 			});
@@ -83,11 +88,12 @@ exports.init = function(server) {
 		// handle client's messages
 
 		socket.on('message', function(message) { // triggered by socket.send
-			console.log('server received messagese');
+			console.log('server received message');
 			message = JSON.parse(message);
 			// receive user's message
 			if(message.type == 'userMessage') {
-				message.username = socket.username;
+				console.log('message.type == userMessage');
+				message.username = socket.request.nickname;
 				console.log('message.username: ' + message.username);
 				// send to all the other clients
 				socket.in(socket.room).broadcast.send(JSON.stringify(message));
@@ -98,7 +104,4 @@ exports.init = function(server) {
 		});
 
 	});
-
-	// chatCom = io.of('/chat_com')
-
 }
