@@ -28,7 +28,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
     name: 'express.sid',
     store: sessionstore.createSessionStore(),
-    secret: '232rwegbssdfg23twsefazcbl'
+    secret: '232rwegbssdfg23twsefazcbl',
+    resave: false,
+    saveUninitialized: false
 }));
 
 
