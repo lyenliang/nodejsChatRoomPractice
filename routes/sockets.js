@@ -3,13 +3,27 @@ var io = require('socket.io');
 exports.init = function(server) {
 	console.log('Server initialized');
 	io = io.listen(server);
+
+	// run when a socket is created
+	io.use(function(socket, next) {
+		var data = socket.request;
+		if(data.headers.cookie) {
+			data.cookie = require('cookie').parse(data.headers.cookie);
+			data.sessionID = data.cookie['express.sid'].split('.')[0];
+			data.nickname = data.cookie['nickname'];
+		} else {
+			next(new Error('No cookie transmitted.'));
+		}
+		next();
+	});
 	var self = this;
 	this.chatInfra = io.of('/');
 	this.chatCom = io.of('/');
 
 	this.chatInfra.on('connection', function(socket) {
-		
+
 		// #2
+		/*
 		socket.on('set_name', function(data) {
 			console.log('data.name: ' + data.name);
 			socket.username = data.name;
@@ -20,11 +34,21 @@ exports.init = function(server) {
 				message: 'Welcome to the chat room made with Express and Socket.io'	
 			}));
 		});
-
+		*/
 		// #4
 		socket.on('join_room', function(room) {
 			console.log('join_room name: ' + room.name);
-			var userName = socket.username;
+			var userName = socket.handshake.nickname;
+			// var userName = socket.username;
+			console.log('userName: ' + userName);
+			socket.userName = userName;
+			socket.emit('name_set', {
+				name: socket.handshake.nickname
+			});
+			socket.send(JSON.stringify({
+				type: 'serverMessage',
+				message: 'Welcome to the chat room'
+			}));
 			socket.join(room.name); 	// _infra joins
 			var comSocket = self.chatCom.connected[socket.id];
 			//comSocket.join(room.name); 	// _com joins 

@@ -8,11 +8,10 @@ console.log('roomName: ' + roomName);
 if(roomName) {
 	roomName = 'room_' + roomName;
 	// #3
+	chatInfra.emit('join_room', {
+		name: roomName
+	});
 	chatInfra.on('name_set', function(data) {
-		chatInfra.emit('join_room', {
-			name: roomName
-		});
-
 		// #5
 		chatInfra.on('user_entered', function(user) {
 		$('#messages').append('<div class="systemMessage"><b>' + 
