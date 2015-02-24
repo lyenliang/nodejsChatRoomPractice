@@ -8,11 +8,9 @@ exports.init = function(server) {
 	io.use(function(socket, next) {
 		var data = socket.request;
 		if(data.headers.cookie) {
-			console.log('has cookie');
-			console.log('data.headers.cookie: ' + data.headers.cookie);
 			data.cookie = require('cookie').parse(data.headers.cookie);
-			console.log('data.cookie: ' + Object.keys(data.cookie));
-			data.sessionID = data.cookie['express.sid'].split('.')[0];
+			//data.sessionID = data.cookie['express.sid'].split('.')[0];
+			data.sessionID = data.cookie['io'];
 			data.nickname = data.cookie['nickname'];
 		} else {
 			console.log('no cookie');
