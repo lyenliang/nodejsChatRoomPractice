@@ -1,4 +1,14 @@
 var io = require('socket.io');
+var userList = [];
+
+function isNameDuplicated(name) {
+	for (i = 0; i < userList.length; i++) {
+		if(name == userList[i]) {
+			return true;
+		}
+	}
+	return false;
+}
 
 exports.init = function(server) {
 	console.log('Server initialized');
@@ -38,10 +48,19 @@ exports.init = function(server) {
 		});
 		*/
 		// #4
+		socket.on('check_duplicate_name', function(data) {
+			if(isNameDuplicated(data.name)) {
+				socket.emit('name_duplicated', {});
+			} else {
+				socket.emit('name_allowed', {});
+			}
+		});
+
 		socket.on('join_room', function(room) {
 			console.log('join_room name: ' + room.name);
 			//console.log('socket.handshake: ' + Object.keys(socket.request));
 			var userName = socket.request.nickname;
+			userList.push(userName);
 			// var userName = socket.username;
 			//console.log('socket.handshake: ' + socket.handshake);
 			socket.userName = userName;
@@ -58,7 +77,7 @@ exports.init = function(server) {
 			comSocket.room = room.name;
 			socket.in(room.name).broadcast.emit('user_entered', {
 				name: userName
-			});
+			});		
 		});
 
 		socket.on('get_rooms', function() {
