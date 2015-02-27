@@ -91,6 +91,7 @@ exports.init = function(server) {
 				if(room.indexOf('room_') == 0) { // room_ room name must starts with "room_"
 					var roomName = room.replace("room_", ""); 
 					rooms[roomName] = io.sockets.adapter.rooms[room];
+					rooms[room] += 1;
 				}
 			}
 			socket.emit('rooms_list', rooms);
