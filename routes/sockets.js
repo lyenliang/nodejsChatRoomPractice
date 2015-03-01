@@ -1,13 +1,36 @@
 var io = require('socket.io');
 var userList = [];
 
-function isNameDuplicated(name) {
+function inArray(clients, target) {
+	for ( c in clients) {
+		if (c == target) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function isNameDuplicated(room, name) {
+	console.log('pRoom: ' + room);
+	console.log('pName: ' + name);
+	return inArray(userList['room_'+room], name);
+	// var users = io.nsps['/'].adapter.rooms['room_' + room];
+
+	/*
+	for(var room in io.sockets.adapter.rooms) {
+		room = 'room_' + room;
+		if(room.indexOf(room) == 0) {
+			// the room is found
+
+		}
+	}
 	for (i = 0; i < userList.length; i++) {
 		if(name == userList[i]) {
 			return true;
 		}
 	}
-	return false;
+	*/
+
 }
 
 exports.init = function(server) {
@@ -33,23 +56,12 @@ exports.init = function(server) {
 	this.chatCom = io.of('/');
 
 	this.chatInfra.on('connection', function(socket) {
-
-		// #2
-		/*
-		socket.on('set_name', function(data) {
-			console.log('data.name: ' + data.name);
-			socket.username = data.name;
-			socket.emit('name_set', data); // why send back the message? No JSON.Stringify() ?!?!
-			// send a welcome message to the connected client
-			socket.send(JSON.stringify({ // handled by socket.on('message', ...
-				type: 'serverMessage',
-				message: 'Welcome to the chat room made with Express and Socket.io'	
-			}));
-		});
-		*/
+		console.log('chatInfra on connection!');
 		// #4
-		socket.on('check_duplicate_name', function(data) {
-			if(isNameDuplicated(data.name)) {
+
+		socket.on('check_duplicate', function(data) {
+			console.log('check_duplicate_name');		
+			if(isNameDuplicated(data.room, data.name)) {
 				socket.emit('name_duplicated', {});
 			} else {
 				socket.emit('name_allowed', {});
@@ -60,7 +72,12 @@ exports.init = function(server) {
 			console.log('join_room name: ' + room.name);
 			//console.log('socket.handshake: ' + Object.keys(socket.request));
 			var userName = socket.request.nickname;
-			userList.push(userName);
+			//userList.push(userName);
+			if(userList[room.name] == null) {
+				userList[room.name] = [userName];
+			} else {
+				userList[room.name].push(userName); // room starts with "room_"
+			}	
 			// var userName = socket.username;
 			//console.log('socket.handshake: ' + socket.handshake);
 			socket.userName = userName;
@@ -89,9 +106,9 @@ exports.init = function(server) {
 			for(var room in io.sockets.adapter.rooms) {
 				// a filter 
 				if(room.indexOf('room_') == 0) { // room_ room name must starts with "room_"
-					var roomName = room.replace("room_", ""); 
-					rooms[roomName] = io.sockets.adapter.rooms[room];
-					rooms[room] += 1;
+					// var roomName = room.replace("room_", "");
+					// rooms[roomName] = io.sockets.adapter.rooms[room];
+					rooms[room] = io.sockets.adapter.rooms[room];
 				}
 			}
 			socket.emit('rooms_list', rooms);
