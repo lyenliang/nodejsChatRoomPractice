@@ -2,8 +2,9 @@ var io = require('socket.io');
 var userList = [];
 
 function inArray(clients, target) {
-	for ( c in clients) {
-		if (c == target) {
+	// for ( c in clients) {
+	for(var i = 0; i < clients.length; i++) {
+		if (clients[i] == target) {
 			return true;
 		}
 	}
@@ -14,23 +15,6 @@ function isNameDuplicated(room, name) {
 	console.log('pRoom: ' + room);
 	console.log('pName: ' + name);
 	return inArray(userList['room_'+room], name);
-	// var users = io.nsps['/'].adapter.rooms['room_' + room];
-
-	/*
-	for(var room in io.sockets.adapter.rooms) {
-		room = 'room_' + room;
-		if(room.indexOf(room) == 0) {
-			// the room is found
-
-		}
-	}
-	for (i = 0; i < userList.length; i++) {
-		if(name == userList[i]) {
-			return true;
-		}
-	}
-	*/
-
 }
 
 exports.init = function(server) {
@@ -62,7 +46,9 @@ exports.init = function(server) {
 		socket.on('check_duplicate', function(data) {
 			console.log('check_duplicate_name');		
 			if(isNameDuplicated(data.room, data.name)) {
-				socket.emit('name_duplicated', {});
+				socket.emit('name_duplicated', {
+					name: data.name
+				});
 			} else {
 				socket.emit('name_allowed', {});
 			}
