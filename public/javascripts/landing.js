@@ -1,7 +1,11 @@
 $(function() {
 	$('#startchat').click(function() {
-		document.cookie = 'nickname=' + $('#nickname').val() + ';; path=/';
-		console.log('document.cookie: ' + document.cookie);
+		var name = $('#nickname').val();
+		if(name == '') {
+			alert('Nickname is required.');
+			return;
+		}
+		document.cookie = 'nickname=' + name + ';; path=/';
 		window.location = '/rooms';
 	});
 });

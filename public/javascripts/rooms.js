@@ -8,13 +8,9 @@ chatInfra.on('connect', function() {
 
 	chatInfra.on('rooms_list', function(rooms) {
 		console.log('rooms_list received');
-		
-		console.log('rooms.length: ' + rooms.length);
 		// $('#rooms_list').remove();
 		for(var room in rooms) {
 			room = room.replace("room_", "");
-			//console.log('room: ' + room);
-			//console.log('Object.keys(rooms): ' + Object.keys(rooms[room]));
 			var name = getCookie('nickname');
 			console.log('rooms[room]: ' + rooms[room]);
 			var roomDiv = '<div class="room_div"><span class="room_name">' + 
@@ -30,7 +26,6 @@ chatInfra.on('connect', function() {
 		window.alert('The name ' + data.name + ' is currently in use');
 	});
 	chatInfra.on('name_allowed', function(data) {
-		// $('.room_name')[0].innerHTML
 		window.location = '/chatroom?room=' + $('#new_room_name').val();
 	});
 });
