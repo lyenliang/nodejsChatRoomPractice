@@ -34,8 +34,12 @@ if(roomName) {
 
 		$('#send').click(function() {
 			// user sends the message
+			var words = $('#message').val();
+			if(words == '') {
+				return;
+			}
 			var data = {
-				message: $('#message').val(),
+				message: words,
 				type: 'userMessage'
 			}
 			chatCom.send(JSON.stringify(data)); // handled by socket.on('message', ...
