@@ -1,5 +1,12 @@
 var io = require('socket.io');
-var userList = [];
+var userList = []; // record all the users
+
+// Array Remove - By John Resig (MIT Licensed)
+Array.prototype.remove = function(from, to) {
+  var rest = this.slice((to || from) + 1 || this.length);
+  this.length = from < 0 ? this.length + from : from;
+  return this.push.apply(this, rest);
+};
 
 function inArray(clients, target) {
 	// for ( c in clients) {
@@ -71,16 +78,22 @@ exports.init = function(server) {
 				name: userName
 			});
 			socket.send(JSON.stringify({
-				type: 'serverMessage',
+				type: 'WelcomeMessage',
 				message: 'Welcome to the chat room'
 			}));
+
 			socket.join(room.name); 	// _infra joins
 			var comSocket = self.chatCom.connected[socket.id];
 			//comSocket.join(room.name); 	// _com joins 
 			comSocket.room = room.name;
 			socket.in(room.name).broadcast.emit('user_entered', {
 				name: userName
-			});		
+			});	
+
+			socket.send(JSON.stringify({
+				type: 'UsersListMessage',
+				userList: userList[room.name].toString()
+			}));	
 		});
 
 		socket.on('get_rooms', function() {
@@ -99,6 +112,10 @@ exports.init = function(server) {
 			}
 			socket.emit('rooms_list', rooms);
 		});
+
+	});
+
+	this.chatInfra.on('disconnect', function() {
 
 	});
 

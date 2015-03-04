@@ -14,14 +14,16 @@ if(roomName) {
 	chatInfra.on('name_set', function(data) {
 		// #5
 		chatInfra.on('user_entered', function(user) {
-		$('#messages').append('<div class="systemMessage"><b>' + 
-			user.name + '</b> has joined the room.' + '</div>');
+			$('#messages').append('<div class="systemMessage"><b>' + 
+				user.name + '</b> has joined the room.' + '</div>');
 		});
 
 		chatCom.on('message', function(data) {
 			data = JSON.parse(data);
-			if(data.type == 'serverMessage') {
-				$('#messages').append('<div class="' + data.type + '">' + data.message + '</div>')
+			if(data.type == 'WelcomeMessage') {
+				$('#messages').append('<div class="' + data.type + '">' + data.message + '</div>');
+			} else if(data.type == 'UsersListMessage') {
+				$('#messages').append('<div class="' + data.type + '"><b>User List: ' + data.userList + '</b></div>');
 			} else {
 				$('#messages').append('<div class="' + data.type + 
 					'"><span class="name"><b>' + data.username + "</b>:</span>" + data.message + '</div>');
