@@ -1,11 +1,12 @@
 var io = require('socket.io');
 var userList = []; // record all the users
 
-// Array Remove - By John Resig (MIT Licensed)
-Array.prototype.remove = function(from, to) {
-  var rest = this.slice((to || from) + 1 || this.length);
-  this.length = from < 0 ? this.length + from : from;
-  return this.push.apply(this, rest);
+Array.prototype.remove = function(target) {
+	for(var i = 0; i < this.length; i++) {
+		if(this[i] == target) {
+			this.splice(i, 1);
+		}
+	}
 };
 
 function inArray(clients, target) {
@@ -19,8 +20,6 @@ function inArray(clients, target) {
 }
 
 function isNameDuplicated(room, name) {
-	console.log('pRoom: ' + room);
-	console.log('pName: ' + name);
 	return inArray(userList['room_'+room], name);
 }
 
@@ -99,9 +98,6 @@ exports.init = function(server) {
 		socket.on('get_rooms', function() {
 			console.log('get_rooms received');
 			var rooms = {};
-			//console.log('io.sockets.adapter.rooms: ' + io.sockets.adapter.rooms);
-			console.log('Object.keys(io.sockets.adapter.rooms): ' + Object.keys(io.sockets.adapter.rooms));
-			//console.log('Object.keys(io.sockets.adapter.rooms)[0]: ' + Object.keys(io.sockets.adapter.rooms)[0]);
 			for(var room in io.sockets.adapter.rooms) {
 				// a filter 
 				if(room.indexOf('room_') == 0) { // room_ room name must starts with "room_"
@@ -113,12 +109,14 @@ exports.init = function(server) {
 			socket.emit('rooms_list', rooms);
 		});
 
+		socket.on('disconnect', function() {
+			console.log('disconnect!!');
+			if(userList[socket.room]) {
+				userList[socket.room].remove(socket.userName);
+			}
+		});
+
 	});
-
-	this.chatInfra.on('disconnect', function() {
-
-	});
-
 	
 	this.chatCom.on('connection', function(socket) {
 
