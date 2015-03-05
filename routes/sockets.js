@@ -10,7 +10,6 @@ Array.prototype.remove = function(target) {
 };
 
 function inArray(clients, target) {
-	// for ( c in clients) {
 	for(var i = 0; i < clients.length; i++) {
 		if (clients[i] == target) {
 			return true;
@@ -115,6 +114,7 @@ exports.init = function(server) {
 			console.log('disconnect!!');
 			if(userList[socket.room]) {
 				userList[socket.room].remove(socket.userName);
+				// TODO check if the room is empty
 			}
 		});
 

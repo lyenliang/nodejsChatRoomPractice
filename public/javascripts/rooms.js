@@ -7,8 +7,7 @@ chatInfra.on('connect', function() {
 	});
 
 	chatInfra.on('rooms_list', function(rooms) {
-		console.log('rooms_list received');
-		// $('#rooms_list').remove();
+		console.log('receive a list of rooms from the server');
 		for(var room in rooms) {
 			room = room.replace("room_", "");
 			var name = getCookie('nickname');
@@ -21,18 +20,17 @@ chatInfra.on('connect', function() {
 			$('#rooms_list').append(roomDiv);
 		}
 	});
-	// document.getElementsByClassName("room_name")[0].innerHTML
+
 	chatInfra.on('name_duplicated', function(data) {
 		window.alert('The name ' + data.name + ' is currently in use');
 	});
+
 	chatInfra.on('name_allowed', function(data) {
 		window.location = '/chatroom?room=' + data.room;
 	});
 });
 
 function checkDuplicateName(pRoom, pName, action) {
-	console.log('checkDuplicateName');
-
 	chatInfra.emit('check_duplicate', {
 		room: pRoom,
 		name: pName
@@ -55,15 +53,8 @@ function getCookie(cname) {
 $(function() {
 
 	$('#new_room_btn').click(function() {
+		// check if the room name already exists
 		window.location = '/chatroom?room=' + $('#new_room_name').val();
 	});
-	
-	/*
-	$('.room').click(function() {
-		chatInfra.emit('check_duplicate_name', {
-			name: getCookie('nickname')
-		})
-	});
-	*/
 	
 });
