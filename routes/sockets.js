@@ -56,7 +56,9 @@ exports.init = function(server) {
 					name: data.name
 				});
 			} else {
-				socket.emit('name_allowed', {});
+				socket.emit('name_allowed', {
+					room: data.room
+				});
 			}
 		});
 

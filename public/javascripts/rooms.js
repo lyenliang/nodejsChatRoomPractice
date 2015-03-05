@@ -1,5 +1,5 @@
 var chatInfra = io.connect('/');
-
+var isNewRoom = false;
 chatInfra.on('connect', function() {
 
 	chatInfra.emit('get_rooms', {
@@ -26,12 +26,13 @@ chatInfra.on('connect', function() {
 		window.alert('The name ' + data.name + ' is currently in use');
 	});
 	chatInfra.on('name_allowed', function(data) {
-		window.location = '/chatroom?room=' + $('#new_room_name').val();
+		window.location = '/chatroom?room=' + data.room;
 	});
 });
 
-function checkDuplicateName(pRoom, pName) {
+function checkDuplicateName(pRoom, pName, action) {
 	console.log('checkDuplicateName');
+
 	chatInfra.emit('check_duplicate', {
 		room: pRoom,
 		name: pName
