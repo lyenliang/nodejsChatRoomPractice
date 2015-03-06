@@ -23,7 +23,9 @@ if(roomName) {
 			if(data.type == 'WelcomeMessage') {
 				$('#messages').append('<div class="' + data.type + '">' + data.message + '</div>');
 			} else if(data.type == 'UsersListMessage') {
-				$('#messages').append('<div class="' + data.type + '"><b>User List: ' + data.userList + '</b></div>');
+				for (var i = 0 ; i < data.userList.length; i++) {
+					$('#userList').append('<div class="' + data.type + '">' + data.userList[i] + '</div>');
+				}
 			} else {
 				$('#messages').append('<div class="' + data.type + 
 					'"><span class="name"><b>' + data.username + "</b>:</span>" + data.message + '</div>');

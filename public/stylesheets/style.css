@@ -14,6 +14,7 @@ section#chatroom {
   height: -webkit-calc(100% - 80px); 
   height: calc(100% - 80px); 
   background-color: #EFFFEC; 
+  position: relative;
 } 
 div#messages { 
   height: -moz-calc(100% - 35px); 
@@ -25,13 +26,21 @@ div#messages {
   box-sizing:border-box; 
 } 
 input#message { 
-  width: -moz-calc(100% - 80px); 
-  width: -webkit-calc(100% - 80px); 
-  width: calc(100% - 80px); 
+  width: -moz-calc(100% - 179px); 
+  width: -webkit-calc(100% - 179px); 
+  width: calc(100% - 179px); 
 } 
 input#send { 
   width: 74px; 
 } 
+div#userList {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  width: 100px;
+  background: #ddd;
+}
 header{ 
   background-color:#4192C1; 
   text-align: right; 

@@ -92,7 +92,7 @@ exports.init = function(server) {
 
 			socket.send(JSON.stringify({
 				type: 'UsersListMessage',
-				userList: userList[room.name].toString()
+				userList: userList[room.name]
 			}));	
 		});
 
