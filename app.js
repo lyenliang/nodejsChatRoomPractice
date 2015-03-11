@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var sessionstore = require('sessionstore');
 var session = require('express-session');
+var RedisStore = require('connect-redis')(session);
 
 var morgan = require('morgan');
 var routes = require('./routes/index');
@@ -13,6 +14,7 @@ var users = require('./routes/users');
 
 var app = express();
 
+var sessionStore = new RedisStore();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -28,7 +30,8 @@ app.use(cookieParser('232rwegbssdfg23twsefazcbl'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
     name: 'express.sid',
-    store: sessionstore.createSessionStore(),
+    // store: sessionstore.createSessionStore(),
+    store: sessionStore,
     secret: '232rwegbssdfg23twsefazcbl',
     resave: false,
     saveUninitialized: false

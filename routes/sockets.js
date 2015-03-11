@@ -1,5 +1,9 @@
 var io = require('socket.io');
-var userList = []; // record all the users
+var redis = require('redis');
+var RedisStore = require('socket.io/lib/stores/redis');
+var pub = redis.createClient();
+var sub = redis.createClient();
+var client = redis.createClient();
 
 Array.prototype.remove = function(target) {
 	for(var i = 0; i < this.length; i++) {
