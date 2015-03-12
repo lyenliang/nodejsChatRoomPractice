@@ -36,10 +36,10 @@ function isNameDuplicated(room, name) {
 */
 
 function removeUser(roomName, userName) {
-	if(client.sismember('userList', roomName, null) == 1) {
-		client.srem(roomName, userName, null);
-		if (client.scard(roomName, null) == 0) {
-			client.srem('userList', roomName, null);
+	if(client.sismember('userList', roomName, redis.print) == 1) {
+		client.srem(roomName, userName, redis.print);
+		if (client.scard(roomName, redis.print) == 0) {
+			client.srem('userList', roomName, redis.print);
 		};
 		return true;
 	} else {
@@ -49,15 +49,8 @@ function removeUser(roomName, userName) {
 }
 
 function addUser(roomName, userName) {
-	client.sadd(roomName, userName, null);
-	client.sadd('userList', roomName, null);
-	/*
-	if(userList[roomName] == null) {
-		userList[roomName] = [userName];
-	} else {
-		userList[roomName].push(userName); // room starts with "room_"
-	}
-	*/	
+	client.sadd(roomName, userName, redis.print);
+	client.sadd('userList', roomName, redis.print);
 }
 
 exports.init = function(server) {
@@ -93,7 +86,7 @@ exports.init = function(server) {
 
 		socket.on('check_duplicate', function(data) {
 			// console.log('check_duplicate_name');		
-			if (client.sismember(data.room, data.name, null) == 1) {
+			if (client.sismember(data.room, data.name, redis.print) == 1) {
 				socket.emit('name_duplicated', {
 					name: data.name
 				});
@@ -142,7 +135,7 @@ exports.init = function(server) {
 			socket.send(JSON.stringify({
 				type: 'UsersListMessage',
 				//userList: userList[room.name]
-				userList: client.smembers(room.name, null)
+				userList: client.smembers(room.name, redis.print)
 			}));	
 		});
 
@@ -163,12 +156,6 @@ exports.init = function(server) {
 		socket.on('disconnect', function() {
 			console.log('disconnect!!');
 			removeUser(socket.room, socket.userName);
-			/*
-			if(userList[socket.room]) {
-				userList[socket.room].remove(socket.userName);
-				// TODO check if the room is empty
-			}
-			*/
 		});
 
 	});
