@@ -1,11 +1,9 @@
 var io = require('socket.io');
 var redis = require('redis');
 var redisStore = require('socket.io-redis');
-var pub = redis.createClient();
-var sub = redis.createClient();
+// var pub = redis.createClient();
+// var sub = redis.createClient();
 var client = redis.createClient();
-
-// var userList = []; // TODO synchronize userList among the cluster
 
 client.on("error", function (err) {
 	console.log("Redis Error: " + err);
@@ -34,7 +32,13 @@ function isNameDuplicated(room, name) {
 	return inArray(userList['room_'+room], name);
 }
 */
-
+function showData(err, data) {
+	if (err) {
+		console.log("err:" + err);
+	} else {
+		console.log("reply:" + data);
+	}
+}
 function removeUser(roomName, userName) {
 	if(client.sismember('userList', roomName, redis.print) == 1) {
 		client.srem(roomName, userName, redis.print);
@@ -85,8 +89,11 @@ exports.init = function(server) {
 		// #4
 
 		socket.on('check_duplicate', function(data) {
-			// console.log('check_duplicate_name');		
-			if (client.sismember(data.room, data.name, redis.print) == 1) {
+			// console.log('check_duplicate_name');	
+			//console.log('client.sismember(data.room, qqq, redis.print): ' + client.sismember(data.room, 'qqq', showData));
+			//console.log('data.room: ' + data.room + ', data.name: ' + data.name);
+			console.log('members in a room: ' + client.smembers(data.room, showData));
+			if (client.sismember(data.room, data.name, showData) == true) {
 				socket.emit('name_duplicated', {
 					name: data.name
 				});
@@ -154,6 +161,7 @@ exports.init = function(server) {
 		});
 
 		socket.on('disconnect', function() {
+			// FIXME this function triggered when switching from the 1st page to the 2nd page.
 			console.log('disconnect!!');
 			removeUser(socket.room, socket.userName);
 		});
