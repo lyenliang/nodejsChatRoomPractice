@@ -1,9 +1,11 @@
 var io = require('socket.io');
 var redis = require('redis');
-var RedisStore = require('socket.io/lib/stores/redis');
+var redisStore = require('socket.io-redis');
 var pub = redis.createClient();
 var sub = redis.createClient();
 var client = redis.createClient();
+
+var userList = [];
 
 Array.prototype.remove = function(target) {
 	for(var i = 0; i < this.length; i++) {
@@ -29,6 +31,11 @@ function isNameDuplicated(room, name) {
 exports.init = function(server) {
 	console.log('Server initialized');
 	io = io.listen(server);
+
+	io.adapter(redisStore({
+		host: 'localhost',
+		port: '6379'
+	}));
 
 	// run when a socket is created
 	io.use(function(socket, next) {
