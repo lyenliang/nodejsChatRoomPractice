@@ -5,7 +5,11 @@ var pub = redis.createClient();
 var sub = redis.createClient();
 var client = redis.createClient();
 
-var userList = [];
+// var userList = []; // TODO synchronize userList among the cluster
+
+client.on("error", function (err) {
+	console.log("Redis Error: " + err);
+});
 
 Array.prototype.remove = function(target) {
 	for(var i = 0; i < this.length; i++) {
@@ -15,6 +19,8 @@ Array.prototype.remove = function(target) {
 	}
 };
 
+// set doesn't allow duplicated values
+/*
 function inArray(clients, target) {
 	for(var i = 0; i < clients.length; i++) {
 		if (clients[i] == target) {
@@ -26,6 +32,32 @@ function inArray(clients, target) {
 
 function isNameDuplicated(room, name) {
 	return inArray(userList['room_'+room], name);
+}
+*/
+
+function removeUser(roomName, userName) {
+	if(client.sismember('userList', roomName, null) == 1) {
+		client.srem(roomName, userName, null);
+		if (client.scard(roomName, null) == 0) {
+			client.srem('userList', roomName, null);
+		};
+		return true;
+	} else {
+		return false;
+	}
+	
+}
+
+function addUser(roomName, userName) {
+	client.sadd(roomName, userName, null);
+	client.sadd('userList', roomName, null);
+	/*
+	if(userList[roomName] == null) {
+		userList[roomName] = [userName];
+	} else {
+		userList[roomName].push(userName); // room starts with "room_"
+	}
+	*/	
 }
 
 exports.init = function(server) {
@@ -60,7 +92,17 @@ exports.init = function(server) {
 		// #4
 
 		socket.on('check_duplicate', function(data) {
-			console.log('check_duplicate_name');		
+			// console.log('check_duplicate_name');		
+			if (client.sismember(data.room, data.name, null) == 1) {
+				socket.emit('name_duplicated', {
+					name: data.name
+				});
+			} else {
+				socket.emit('name_allowed', {
+					room: data.room
+				});
+			}
+			/*
 			if(isNameDuplicated(data.room, data.name)) {
 				socket.emit('name_duplicated', {
 					name: data.name
@@ -70,18 +112,14 @@ exports.init = function(server) {
 					room: data.room
 				});
 			}
+			*/
 		});
 
 		socket.on('join_room', function(room) {
 			console.log('join_room name: ' + room.name);
 			//console.log('socket.handshake: ' + Object.keys(socket.request));
 			var userName = socket.request.nickname;
-			//userList.push(userName);
-			if(userList[room.name] == null) {
-				userList[room.name] = [userName];
-			} else {
-				userList[room.name].push(userName); // room starts with "room_"
-			}	
+			addUser(room.name, userName);
 			// var userName = socket.username;
 			//console.log('socket.handshake: ' + socket.handshake);
 			socket.userName = userName;
@@ -103,7 +141,8 @@ exports.init = function(server) {
 
 			socket.send(JSON.stringify({
 				type: 'UsersListMessage',
-				userList: userList[room.name]
+				//userList: userList[room.name]
+				userList: client.smembers(room.name, null)
 			}));	
 		});
 
@@ -123,10 +162,13 @@ exports.init = function(server) {
 
 		socket.on('disconnect', function() {
 			console.log('disconnect!!');
+			removeUser(socket.room, socket.userName);
+			/*
 			if(userList[socket.room]) {
 				userList[socket.room].remove(socket.userName);
 				// TODO check if the room is empty
 			}
+			*/
 		});
 
 	});
