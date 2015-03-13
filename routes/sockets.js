@@ -1,8 +1,6 @@
 var io = require('socket.io');
 var redis = require('redis');
 var redisStore = require('socket.io-redis');
-// var pub = redis.createClient();
-// var sub = redis.createClient();
 var client = redis.createClient();
 
 client.on("error", function (err) {
@@ -17,21 +15,11 @@ Array.prototype.remove = function(target) {
 	}
 };
 
-// set doesn't allow duplicated values
-/*
-function inArray(clients, target) {
-	for(var i = 0; i < clients.length; i++) {
-		if (clients[i] == target) {
-			return true;
-		}
-	}
-	return false;
+function isNameDuplicated(room, name) {
+	room = 'room_' + room;
+	client.sismember(room, data, showData)
 }
 
-function isNameDuplicated(room, name) {
-	return inArray(userList['room_'+room], name);
-}
-*/
 function showData(err, data) {
 	if (err) {
 		console.log("err:" + err);
@@ -40,19 +28,31 @@ function showData(err, data) {
 	}
 }
 function removeUser(roomName, userName) {
-	if(client.sismember('userList', roomName, redis.print) == 1) {
-		client.srem(roomName, userName, redis.print);
-		if (client.scard(roomName, redis.print) == 0) {
-			client.srem('userList', roomName, redis.print);
-		};
-		return true;
-	} else {
-		return false;
-	}
-	
+	client.sismember('userList', roomName, function(err, result) {
+		if (err) {
+			console.log('sismember err: ' + err);
+			return;
+		}
+		// user userName is in room roomName
+		if(result == 1) {
+			client.srem(roomName, userName, redis.print);
+			// ckeck the number of users in the room
+			client.scard(roomName, function(err, result) {
+				if (err) {
+					console.log('scard err: ' + err);
+					return;
+				}
+				if(result == 0) {
+					client.srem('userList', roomName, redis.print);
+				}
+			});
+		} 
+	});
+
 }
 
 function addUser(roomName, userName) {
+	console.log('user ' + userName + ' added to room ' + roomName );
 	client.sadd(roomName, userName, redis.print);
 	client.sadd('userList', roomName, redis.print);
 }
@@ -89,30 +89,22 @@ exports.init = function(server) {
 		// #4
 
 		socket.on('check_duplicate', function(data) {
-			// console.log('check_duplicate_name');	
-			//console.log('client.sismember(data.room, qqq, redis.print): ' + client.sismember(data.room, 'qqq', showData));
-			//console.log('data.room: ' + data.room + ', data.name: ' + data.name);
-			console.log('members in a room: ' + client.smembers(data.room, showData));
-			if (client.sismember(data.room, data.name, showData) == true) {
-				socket.emit('name_duplicated', {
-					name: data.name
-				});
-			} else {
-				socket.emit('name_allowed', {
-					room: data.room
-				});
-			}
-			/*
-			if(isNameDuplicated(data.room, data.name)) {
-				socket.emit('name_duplicated', {
-					name: data.name
-				});
-			} else {
-				socket.emit('name_allowed', {
-					room: data.room
-				});
-			}
-			*/
+			client.sismember('room_' + data.room, data.name, function(err, result) {
+				if(err) {
+					console.log('Err: ' + err);
+					return;
+				} 
+				console.log('result: ' + result);
+				if(result == 1) {
+					socket.emit('name_duplicated', {
+						name: data.name
+					});
+				} else {
+					socket.emit('name_allowed', {
+						room: data.room
+					});
+				}
+			});
 		});
 
 		socket.on('join_room', function(room) {
@@ -139,18 +131,23 @@ exports.init = function(server) {
 				name: userName
 			});	
 
-			socket.send(JSON.stringify({
-				type: 'UsersListMessage',
-				//userList: userList[room.name]
-				userList: client.smembers(room.name, redis.print)
-			}));	
+			client.smembers(room.name, function(err, members) {
+				if(err) {
+					console.log('smembers err: ' + err);
+					return;
+				}
+				socket.send(JSON.stringify({
+					type: 'UsersListMessage',
+					userList: members
+				}));
+			});
 		});
 
 		socket.on('get_rooms', function() {
 			console.log('get_rooms received');
 			var rooms = {};
 			for(var room in io.sockets.adapter.rooms) {
-				// a filter 
+				// filter out rooms created by node.js
 				if(room.indexOf('room_') == 0) { // room_ room name must starts with "room_"
 					// var roomName = room.replace("room_", "");
 					// rooms[roomName] = io.sockets.adapter.rooms[room];
