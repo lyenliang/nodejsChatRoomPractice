@@ -15,11 +15,6 @@ Array.prototype.remove = function(target) {
 	}
 };
 
-function isNameDuplicated(room, name) {
-	room = 'room_' + room;
-	client.sismember(room, data, showData)
-}
-
 function showData(err, data) {
 	if (err) {
 		console.log("err:" + err);
