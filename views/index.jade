@@ -6,7 +6,9 @@ block append head
 block content
   section#welcome
     div welcome
-    span
+    input#loginAsGuest(type='checkbox')
+    | Login as guest
+    form
       input#nickname(type='text', placeholder='Enter a nickname')
       input#passwd(type='password', placeholder='Enter your password')
     a#startchat(type="button", class="btn") Start Chatting

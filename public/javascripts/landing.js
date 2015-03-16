@@ -1,3 +1,7 @@
+document.addEventListener('DOMContentLoaded', function() {
+	document.querySelector('#loginAsGuest').addEventListener('change', loginAsGuestListener);
+});
+
 // from w3schools
 function getCookie(cname) {
     var name = cname + "=";
@@ -8,6 +12,15 @@ function getCookie(cname) {
         if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
     }
     return "";
+}
+
+function loginAsGuestListener() {
+	if(loginAsGuest.checked) {
+		$('#passwd').val('');
+		$('#passwd').prop('disabled', true);
+	} else {
+		$('#passwd').prop('disabled', false);
+	}
 }
 
 $(function() {
