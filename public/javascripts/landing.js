@@ -1,3 +1,5 @@
+var socket = io.connect('/');
+
 document.addEventListener('DOMContentLoaded', function() {
 	document.querySelector('#loginAsGuest').addEventListener('change', loginAsGuestListener);
 });
@@ -35,7 +37,23 @@ $(function() {
 			alert('Nickname is required.');
 			return;
 		}
-		document.cookie = 'nickname=' + name + ';; path=/';
-		window.location = '/rooms';
+		if(document.getElementById('loginAsGuest').checked) {
+			// login as a guest
+			document.cookie = 'nickname=' + name + ';; path=/';
+			window.location = '/rooms';	
+		} else {
+			// use name and password to enter the chat room
+			socket.emit('namePass', {
+				name: name,
+				pass: $('#passwd').val()
+			});
+			// send name and password to the server
+			// check if this pair of name and password exist in the database	
+		}
+		
+	});
+
+	$('#registerbtn').click(function() {
+		console.log('registerbtn clicked');
 	});
 });

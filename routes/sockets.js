@@ -81,8 +81,14 @@ exports.init = function(server) {
 
 	this.chatInfra.on('connection', function(socket) {
 		console.log('chatInfra on connection!');
-		// #4
 
+		socket.on('namePass', function(data) {
+			console.log('name: ' + data.name + ', pass: ' + data.pass);
+			// store this pair of data
+			
+		});
+
+		// #4
 		socket.on('check_duplicate', function(data) {
 			client.sismember('room_' + data.room, data.name, function(err, result) {
 				if(err) {

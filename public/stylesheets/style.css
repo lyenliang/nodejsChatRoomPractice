@@ -110,7 +110,7 @@ a {
   padding: 10px 5px;
 }
 
-#welcome div{
+div#welcome {
   font-family: fantasy;
   font-size: 100px;
   margin-left: 20px;
