@@ -138,9 +138,6 @@ div#welcome {
     padding: 4px 12px;
     text-align: center;
     vertical-align: middle;
-    position: absolute;
-    right: 40px;
-    bottom: 80px;
     text-decoration: none;
 }
 #chatrooms{
