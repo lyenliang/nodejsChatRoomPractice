@@ -50,11 +50,20 @@ function getCookie(cname) {
     return "";
 }
 
+function deleteCookie( name ) {
+	document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
+
 $(function() {
 
 	$('#new_room_btn').click(function() {
 		// check if the room name already exists
 		window.location = '/chatroom?room=' + $('#new_room_name').val();
+	});
+
+	$('#logout_btn').click(function() {
+		deleteCookie('nickname');
+		window.location = '/';
 	});
 	
 });
