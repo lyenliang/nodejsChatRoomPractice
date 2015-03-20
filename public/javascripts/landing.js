@@ -39,7 +39,12 @@ $(function() {
 		}
 		if(document.getElementById('loginAsGuest').checked) {
 			// login as a guest
-			document.cookie = 'nickname=' + name + ';; path=/';
+			var now = new Date();
+			var time = now.getTime();
+			var expireTime = time + 10*1000;
+			now.setTime(expireTime);
+
+			document.cookie = 'nickname=' + name + ';expires=' + now.toGMTString() + ';path=/';
 			window.location = '/rooms';	
 		} else {
 			// use name and password to enter the chat room

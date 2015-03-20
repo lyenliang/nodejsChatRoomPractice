@@ -53,6 +53,7 @@ function addUser(roomName, userName) {
 }
 
 exports.init = function(server) {
+	client.flushdb(redis.print);
 	console.log('Server initialized');
 	io = io.listen(server);
 
