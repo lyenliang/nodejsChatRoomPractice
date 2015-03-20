@@ -48,17 +48,16 @@ $(function() {
 			window.location = '/rooms';	
 		} else {
 			// use name and password to enter the chat room
-			socket.emit('namePass', {
+			socket.emit('signin', {
 				name: name,
 				pass: $('#passwd').val()
 			});
 			// send name and password to the server
 			// check if this pair of name and password exist in the database	
-		}
-		
+		}	
 	});
 
-	$('#registerbtn').click(function() {
-		console.log('registerbtn clicked');
+	$('#signUpBtn').click(function() {
+
 	});
 });

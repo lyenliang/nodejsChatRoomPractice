@@ -83,10 +83,10 @@ exports.init = function(server) {
 	this.chatInfra.on('connection', function(socket) {
 		console.log('chatInfra on connection!');
 
-		socket.on('namePass', function(data) {
+		socket.on('signin', function(data) {
 			console.log('name: ' + data.name + ', pass: ' + data.pass);
 			// store this pair of data
-			
+			client.hset('namePass', data.name, data.pass, redis.print);
 		});
 
 		// #4
