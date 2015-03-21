@@ -36,10 +36,11 @@ app.use(session({
 }));
 
 
-app.use('/', routes.router);
+app.use(routes.router);
 app.use('/users', users);
 app.use('/chatroom', routes.chatroom);
 app.use('/rooms', routes.rooms);
+app.use('/signup', routes.signup)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

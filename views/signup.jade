@@ -1,0 +1,16 @@
+extends layout
+
+block append head
+  script(type='text/javascript', src='/javascripts/signup.js')
+
+block content
+  div 
+    span Username:
+    input#userNameInput(type="text")
+  div
+    span Password:
+    input#passWordInput(type="password")
+  div
+    span Password: (enter again)
+    input#passWordInput2(type="password")
+  button#signupFormSubmit(class="btn") Sign Up

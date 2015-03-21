@@ -168,3 +168,16 @@ div#welcome {
     position: absolute;
     right: 40px;
 }
+
+input#userNameInput {
+  width: 96%;
+  margin-bottom: 10px;
+}
+input#passWordInput {
+  width: 96%;
+  margin-bottom: 10px;
+}
+input#passWordInput2 {
+  width: 96%;
+  margin-bottom: 10px;
+}

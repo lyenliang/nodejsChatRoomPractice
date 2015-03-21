@@ -1,12 +1,13 @@
 doctype html
-script(type='text/javascript', src='/javascripts/jquery-1.11.2.min.js')
+
 html
+  script(type='text/javascript', src='/javascripts/jquery-1.11.2.min.js')
   block head
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
     link(rel='stylesheet', href='/stylesheets/reset.css')
-    link(rel='stylesheet', src='/stylesheets/popup.css')
+    link(src='/stylesheets/popup.css')
   body
     header#banner
-      hl Express + SocketIO Chat Room
+      // hl Express + SocketIO Chat Room
     block content
