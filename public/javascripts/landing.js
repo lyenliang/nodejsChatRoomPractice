@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	document.querySelector('#loginAsGuest').addEventListener('change', loginAsGuestListener);
 });
 
+
 // from w3schools
 function getCookie(cname) {
     var name = cname + "=";
@@ -26,7 +27,7 @@ function loginAsGuestListener() {
 }
 
 $(function() {
-	
+	$('#signUpBtn').popup();
 	if(getCookie('nickname') != "") {
 		window.location = 'rooms';
 	}
@@ -56,8 +57,11 @@ $(function() {
 			// check if this pair of name and password exist in the database	
 		}	
 	});
-
+/*
 	$('#signUpBtn').click(function() {
-
+		console.log('signUpBtn clicked');
+		//$('#signUpBtn').popup();
+		//$('a.popup').popup();
 	});
+*/
 });
