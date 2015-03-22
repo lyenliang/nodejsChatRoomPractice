@@ -26,6 +26,24 @@ function loginAsGuestListener() {
 	}
 }
 
+function enterLobby() {
+	var now = new Date();
+	var time = now.getTime();
+	var expireTime = time + 10*1000;
+	now.setTime(expireTime);
+
+	document.cookie = 'nickname=' + name + ';expires=' + now.toGMTString() + ';path=/';
+	window.location = '/rooms';	
+}
+
+socket.on('validUser', function(data) {
+	enterLobby();
+});
+
+socket.on('invalidUser', function(data) {
+	alert('Sign in fails');
+});
+
 $(function() {
 	$('#signUpBtn').popup();
 	if(getCookie('nickname') != "") {
@@ -40,17 +58,12 @@ $(function() {
 		}
 		if(document.getElementById('loginAsGuest').checked) {
 			// login as a guest
-			var now = new Date();
-			var time = now.getTime();
-			var expireTime = time + 10*1000;
-			now.setTime(expireTime);
-
-			document.cookie = 'nickname=' + name + ';expires=' + now.toGMTString() + ';path=/';
-			window.location = '/rooms';	
+			// TODO check if the user name is already taken
+			enterLobby();
 		} else {
 			// use name and password to enter the chat room
 			socket.emit('signin', {
-				name: name,
+				account: name,
 				pass: $('#passwd').val()
 			});
 			// send name and password to the server

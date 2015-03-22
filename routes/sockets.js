@@ -6,6 +6,9 @@ var client = redis.createClient();
 var default_db = 0;
 var name_pass_db = 1;
 
+var account_key = 'accounts';
+var accountPass_key = 'accountToPass';
+
 client.on("error", function (err) {
 	console.log("Redis Error: " + err);
 });
@@ -55,6 +58,40 @@ function addUser(roomName, userName) {
 	client.sadd('userList', roomName, redis.print);
 }
 
+function isValidUser(socket, pAccount, pPass) {
+	client.select(name_pass_db, redis.print);
+	client.sismember(account_key, pAccount, function(err, result) {
+		if(err) {
+			console.log('isValidUser error: ' + err);
+			return;
+		}
+		if(result == 1) {
+			// check if the password is correct
+			client.hget(accountPass_key, pAccount, function(err, result) {
+				if(err) {
+					console.log('isValidUser error: ' + err);
+					return;
+				}
+				console.log('hget accountPass result: ' + result);
+				if(result == pPass) {
+					socket.emit('validUser', {
+						account: pAccount
+					});
+				} else {
+					socket.emit('invalidUser', {
+						account: pAccount
+					});
+				}
+			});
+		} else {
+			socket.emit('invalidUser', {
+				account: pAccount
+			});
+			return false;
+		}
+	});
+}
+
 exports.init = function(server) {
 	client.flushdb(redis.print);
 	console.log('Server initialized');
@@ -88,6 +125,12 @@ exports.init = function(server) {
 
 		socket.on('signin', function(data) {
 			console.log('name: ' + data.name + ', pass: ' + data.pass);
+			
+			if(isValidUser(socket, data.account, data.pass)) {
+
+			} else {
+
+			}
 			// store this pair of data
 			client.hset('namePass', data.name, data.pass, redis.print);
 		});
@@ -171,14 +214,14 @@ exports.init = function(server) {
 		socket.on('name_pass', function(data) {
 			console.log('account: ' + data.account + ' ,pass: ' + data.pass);
 			client.select(name_pass_db, redis.print);
-			client.sadd('accounts', data.account, function(err, result) {
+			client.sadd(account_key, data.account, function(err, result) {
 				if(err) {
 					console.log('account ' + data.account + ' duplicated');
 					client.select(default_db, redis.print);
 					return;
 				}
 				if(result == 1) {
-					client.hset('accountToPass', data.account, data.pass);
+					client.hset(accountPass_key, data.account, data.pass);
 					socket.emit('account_register_ok', {
 						account: data.account
 					});
