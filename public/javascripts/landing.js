@@ -56,6 +56,12 @@ $(function() {
 			alert('Nickname is required.');
 			return;
 		}
+		socket.emit('signin', {
+			account: name,
+			pass: $('#passwd').val(),
+			isGuest: document.getElementById('loginAsGuest').checked
+		});		
+		/*
 		if(document.getElementById('loginAsGuest').checked) {
 			// login as a guest
 			// TODO check if the user name is already taken
@@ -66,9 +72,8 @@ $(function() {
 				account: name,
 				pass: $('#passwd').val()
 			});
-			// send name and password to the server
-			// check if this pair of name and password exist in the database	
 		}	
+		*/
 	});
 /*
 	$('#signUpBtn').click(function() {

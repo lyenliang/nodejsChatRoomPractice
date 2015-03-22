@@ -10,7 +10,7 @@ $('#signupFormSubmit').click(function() {
 	}
 	var account = $('#userNameInput').val();
 	
-	socket.emit('name_pass',  {
+	socket.emit('signup',  {
 		account: account,
 		pass: pass
 	});

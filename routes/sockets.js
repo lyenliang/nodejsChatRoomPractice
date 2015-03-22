@@ -6,7 +6,8 @@ var client = redis.createClient();
 var default_db = 0;
 var name_pass_db = 1;
 
-var account_key = 'accounts';
+var registered_account_key = 'regAccounts';
+var guest_account_key = 'guestAccounts';
 var accountPass_key = 'accountToPass';
 
 client.on("error", function (err) {
@@ -28,6 +29,7 @@ function showData(err, data) {
 		console.log("reply:" + data);
 	}
 }
+
 function removeUser(roomName, userName) {
 	client.sismember('userList', roomName, function(err, result) {
 		if (err) {
@@ -58,9 +60,9 @@ function addUser(roomName, userName) {
 	client.sadd('userList', roomName, redis.print);
 }
 
-function isValidUser(socket, pAccount, pPass) {
+function validateUser(socket, pAccount, pPass) {
 	client.select(name_pass_db, redis.print);
-	client.sismember(account_key, pAccount, function(err, result) {
+	client.sismember(registered_account_key, pAccount, function(err, result) {
 		if(err) {
 			console.log('isValidUser error: ' + err);
 			return;
@@ -88,6 +90,41 @@ function isValidUser(socket, pAccount, pPass) {
 				account: pAccount
 			});
 			return false;
+		}
+	});
+}
+
+function checkAccountDuplicate(pSocket, pAccount) {
+	client.sismember(guest_account_key, pAccount, function(err, result) {
+		if(err) {
+			console.log('isValidUser error: ' + err);
+			return;
+		}
+		if(result == 1) {
+			// the user name is already in use
+			pSocket.emit('invalidUser', {
+				account: pAccount
+			});
+		} else {
+			// check registered accounts
+			client.sismember(registered_account_key, pAccount, function(err, result) {
+				if(err) {
+					console.log('isValidUser error: ' + err);
+					return;
+				}
+				if(result == 1) {
+					pSocket.emit('invalidUser', {
+						account: pAccount
+					});
+				} else {
+					client.sadd(guest_account_key, pAccount, redis.print);
+					pSocket.emit('validUser', {
+						account: pAccount
+					});
+				}
+			});
+
+			
 		}
 	});
 }
@@ -125,14 +162,11 @@ exports.init = function(server) {
 
 		socket.on('signin', function(data) {
 			console.log('name: ' + data.name + ', pass: ' + data.pass);
-			
-			if(isValidUser(socket, data.account, data.pass)) {
-
+			if(data.isGuest) {
+				checkAccountDuplicate(socket, data.account);
 			} else {
-
-			}
-			// store this pair of data
-			client.hset('namePass', data.name, data.pass, redis.print);
+				validateUser(socket, data.account, data.pass);
+			}	
 		});
 
 		// #4
@@ -211,10 +245,10 @@ exports.init = function(server) {
 			removeUser(socket.room, socket.userName);
 		});
 
-		socket.on('name_pass', function(data) {
+		socket.on('signup', function(data) {
 			console.log('account: ' + data.account + ' ,pass: ' + data.pass);
 			client.select(name_pass_db, redis.print);
-			client.sadd(account_key, data.account, function(err, result) {
+			client.sadd(registered_account_key, data.account, function(err, result) {
 				if(err) {
 					console.log('account ' + data.account + ' duplicated');
 					client.select(default_db, redis.print);
