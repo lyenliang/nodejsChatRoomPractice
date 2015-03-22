@@ -32,7 +32,7 @@ function enterLobby(pAccount) {
 	var expireTime = time + 10*1000;
 	now.setTime(expireTime);
 
-	document.cookie = 'nickname=' + name + ';expires=' + now.toGMTString() + ';path=/';
+	document.cookie = 'nickname=' + pAccount + ';expires=' + now.toGMTString() + ';path=/';
 	window.location = '/rooms?name=' + pAccount;	
 }
 
