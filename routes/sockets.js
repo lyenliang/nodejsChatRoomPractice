@@ -3,6 +3,9 @@ var redis = require('redis');
 var redisStore = require('socket.io-redis');
 var client = redis.createClient();
 
+var default_db = 0;
+var name_pass_db = 1;
+
 client.on("error", function (err) {
 	console.log("Redis Error: " + err);
 });
@@ -163,6 +166,30 @@ exports.init = function(server) {
 			// FIXME this function triggered when switching from the 1st page to the 2nd page.
 			console.log('disconnect!!');
 			removeUser(socket.room, socket.userName);
+		});
+
+		socket.on('name_pass', function(data) {
+			console.log('account: ' + data.account + ' ,pass: ' + data.pass);
+			client.select(name_pass_db, redis.print);
+			client.sadd('accounts', data.account, function(err, result) {
+				if(err) {
+					console.log('account ' + data.account + ' duplicated');
+					client.select(default_db, redis.print);
+					return;
+				}
+				if(result == 1) {
+					client.hset('accountToPass', data.account, data.pass);
+					socket.emit('account_register_ok', {
+						account: data.account
+					});
+				} else {
+					socket.emit('acount_already_registerd', {
+						account: data.account
+					});
+				}
+				client.select(default_db, redis.print);
+			});
+			
 		});
 
 	});
