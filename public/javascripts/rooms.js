@@ -54,6 +54,25 @@ function deleteCookie( name ) {
 	document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
 
+function getURLParams(target) {
+	var params = location.search;
+	console.log('params: ' + params);
+	if(params.length == 0) {
+		return null;
+	}
+	params = params.substring(1); // remove the "?" sign at the beginning
+	var params = params.split('&');
+	for(var i = 0; i < params.length; i++) {		
+		var p = params[i].split('=');
+		if(p.length == 2) {
+			if(p[0] == target) {
+				return p[1];
+			}
+		}
+	}
+	return null;
+}
+
 $(function() {
 
 	$('#new_room_btn').click(function() {
@@ -65,5 +84,8 @@ $(function() {
 		deleteCookie('nickname');
 		window.location = '/';
 	});
+
+	document.getElementById('welcomeMessage').innerHTML += getURLParams('name');
+	//$('#welcomeMessage')
 	
 });

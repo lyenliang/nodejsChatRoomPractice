@@ -26,18 +26,18 @@ function loginAsGuestListener() {
 	}
 }
 
-function enterLobby() {
+function enterLobby(pAccount) {
 	var now = new Date();
 	var time = now.getTime();
 	var expireTime = time + 10*1000;
 	now.setTime(expireTime);
 
 	document.cookie = 'nickname=' + name + ';expires=' + now.toGMTString() + ';path=/';
-	window.location = '/rooms';	
+	window.location = '/rooms?name=' + pAccount;	
 }
 
 socket.on('validUser', function(data) {
-	enterLobby();
+	enterLobby(data.account);
 });
 
 socket.on('invalidUser', function(data) {
@@ -59,7 +59,7 @@ $(function() {
 		if(document.getElementById('loginAsGuest').checked) {
 			// login as a guest
 			// TODO check if the user name is already taken
-			enterLobby();
+			enterLobby(name);
 		} else {
 			// use name and password to enter the chat room
 			socket.emit('signin', {
