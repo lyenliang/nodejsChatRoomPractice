@@ -29,7 +29,7 @@ function loginAsGuestListener() {
 function enterLobby(pAccount) {
 	var now = new Date();
 	var time = now.getTime();
-	var expireTime = time + 10*1000;
+	var expireTime = time + 180*24*60*60*1000; // 180 days
 	now.setTime(expireTime);
 
 	document.cookie = 'nickname=' + pAccount + ';expires=' + now.toGMTString() + ';path=/';
@@ -61,25 +61,5 @@ $(function() {
 			pass: $('#passwd').val(),
 			isGuest: document.getElementById('loginAsGuest').checked
 		});		
-		/*
-		if(document.getElementById('loginAsGuest').checked) {
-			// login as a guest
-			// TODO check if the user name is already taken
-			enterLobby(name);
-		} else {
-			// use name and password to enter the chat room
-			socket.emit('signin', {
-				account: name,
-				pass: $('#passwd').val()
-			});
-		}	
-		*/
 	});
-/*
-	$('#signUpBtn').click(function() {
-		console.log('signUpBtn clicked');
-		//$('#signUpBtn').popup();
-		//$('a.popup').popup();
-	});
-*/
 });
