@@ -31,7 +31,7 @@ function showData(err, data) {
 }
 
 function removeUser(roomName, userName) {
-	client.sismember('userList', roomName, function(err, result) {
+	client.sismember('roomList', roomName, function(err, result) {
 		if (err) {
 			console.log('sismember err: ' + err);
 			return;
@@ -39,6 +39,7 @@ function removeUser(roomName, userName) {
 		// user userName is in room roomName
 		if(result == 1) {
 			client.srem(roomName, userName, redis.print);
+			client.srem(guest_account_key, userName, redis.print);
 			// ckeck the number of users in the room
 			client.scard(roomName, function(err, result) {
 				if (err) {
@@ -46,7 +47,8 @@ function removeUser(roomName, userName) {
 					return;
 				}
 				if(result == 0) {
-					client.srem('userList', roomName, redis.print);
+					// if the room is empty, remove the room from the list
+					client.srem('roomList', roomName, redis.print);
 				}
 			});
 		} 
@@ -57,7 +59,7 @@ function removeUser(roomName, userName) {
 function addUser(roomName, userName) {
 	console.log('user ' + userName + ' added to room ' + roomName );
 	client.sadd(roomName, userName, redis.print);
-	client.sadd('userList', roomName, redis.print);
+	client.sadd('roomList', roomName, redis.print);
 }
 
 function validateUser(socket, pAccount, pPass) {
