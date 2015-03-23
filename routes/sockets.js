@@ -22,6 +22,13 @@ Array.prototype.remove = function(target) {
 	}
 };
 
+function listUsers(group_key) {
+	client.smembers(group_key, function(err, result) {
+		if(err) {console.log('Error: ' + err)}
+		return result;
+	});
+}
+
 function showData(err, data) {
 	if (err) {
 		console.log("err:" + err);
