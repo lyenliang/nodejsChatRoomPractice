@@ -18,6 +18,11 @@ if(roomName) {
 				user.name + '</b> has joined the room.' + '</div>');
 		});
 
+		chatInfra.on('user_left', function(user) {
+			$('#messages').append('<div class="systemMessage"><b>' + 
+				user.name + '</b> has left the room.' + '</div>');
+		});
+
 		chatCom.on('message', function(data) {
 			data = JSON.parse(data);
 			if(data.type == 'WelcomeMessage') {
