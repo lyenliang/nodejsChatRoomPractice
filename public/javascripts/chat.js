@@ -21,6 +21,7 @@ if(roomName) {
 		chatInfra.on('user_left', function(user) {
 			$('#messages').append('<div class="systemMessage"><b>' + 
 				user.name + '</b> has left the room.' + '</div>');
+			// TODO remove the user from the user list
 		});
 
 		chatCom.on('message', function(data) {

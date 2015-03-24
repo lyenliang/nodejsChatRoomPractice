@@ -254,7 +254,9 @@ exports.init = function(server) {
 
 		socket.on('disconnect', function() {
 			// FIXME this function triggered when switching from the 1st page to the 2nd page.
-			console.log('disconnect!!');
+			socket.in(socket.room).broadcast.emit('user_left', {
+				name: socket.userName
+			});
 			removeUser(socket.room, socket.userName);
 		});
 
