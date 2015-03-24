@@ -28,6 +28,7 @@ if(roomName) {
 			if(data.type == 'WelcomeMessage') {
 				$('#messages').append('<div class="' + data.type + '">' + data.message + '</div>');
 			} else if(data.type == 'UsersListMessage') {
+				document.getElementById('userList').innerHTML = "";
 				for (var i = 0 ; i < data.userList.length; i++) {
 					$('#userList').append('<div class="' + data.type + '">' + data.userList[i] + '</div>');
 				}

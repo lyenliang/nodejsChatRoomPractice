@@ -103,6 +103,11 @@ function validateUser(socket, pAccount, pPass) {
 	});
 }
 
+function tellEveryClient(socket, roomName, message) {
+	socket.send(JSON.stringify(message));
+	socket.in(roomName).broadcast.send(JSON.stringify(message));
+}
+
 function checkAccountDuplicate(pSocket, pAccount) {
 	client.sismember(guest_account_key, pAccount, function(err, result) {
 		if(err) {
@@ -132,8 +137,6 @@ function checkAccountDuplicate(pSocket, pAccount) {
 					});
 				}
 			});
-
-			
 		}
 	});
 }
@@ -227,10 +230,11 @@ exports.init = function(server) {
 					console.log('smembers err: ' + err);
 					return;
 				}
-				socket.send(JSON.stringify({
+				var message = {
 					type: 'UsersListMessage',
 					userList: members
-				}));
+				}
+				tellEveryClient(socket, room.name, message);
 			});
 		});
 
