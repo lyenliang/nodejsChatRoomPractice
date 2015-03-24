@@ -4,7 +4,18 @@ var chatCom = io.connect('/');
 
 // location.search equals "?room=roomName"
 var roomName = decodeURI(RegExp("room=([\\w]+)").exec(location.search)[1]);
-console.log('roomName: ' + roomName);
+
+function removeUser(target) {
+	var userList = document.getElementById('userList');
+	for( var i = 0; i < userList.childElementCount; i++) {
+		var user = userList.childNodes[i];
+		if (user.innerHTML == target) {
+			userList.removeChild(user);
+		}
+		break;
+	}
+}
+
 if(roomName) {
 	roomName = 'room_' + roomName;
 	// #3
@@ -21,7 +32,7 @@ if(roomName) {
 		chatInfra.on('user_left', function(user) {
 			$('#messages').append('<div class="systemMessage"><b>' + 
 				user.name + '</b> has left the room.' + '</div>');
-			// TODO remove the user from the user list
+			removeUser(user.name);
 		});
 
 		chatCom.on('message', function(data) {
