@@ -202,8 +202,7 @@ exports.init = function(server) {
 		});
 
 		socket.on('join_room', function(room) {
-			console.log('join_room name: ' + room.name);
-			//console.log('socket.handshake: ' + Object.keys(socket.request));
+			console.log('headers cookie: ' + socket.handshake.headers.cookie);
 			var userName = socket.request.nickname;
 			addUser(room.name, userName);
 			// var userName = socket.username;
