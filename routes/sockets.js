@@ -1,3 +1,4 @@
+var debug = require('debug')('chatroom');  // chatroom is the name of the logger
 var io = require('socket.io');
 var redis = require('redis');
 var redisStore = require('socket.io-redis');
@@ -64,7 +65,7 @@ function removeUser(roomName, userName) {
 }
 
 function addUser(roomName, userName) {
-	console.log('user ' + userName + ' added to room ' + roomName );
+	debug('user ' + userName + ' added to room ' + roomName );
 	client.sadd(roomName, userName, redis.print);
 	client.sadd('roomList', roomName, redis.print);
 }
@@ -143,7 +144,7 @@ function checkAccountDuplicate(pSocket, pAccount) {
 
 exports.init = function(server) {
 	client.flushdb(redis.print);
-	console.log('Server initialized');
+	debug('Server initialized');
 	io = io.listen(server);
 
 	io.adapter(redisStore({
@@ -160,7 +161,6 @@ exports.init = function(server) {
 			data.sessionID = data.cookie['io'];
 			data.nickname = data.cookie['nickname'];
 		} else {
-			console.log('no cookie');
 			next(new Error('No cookie transmitted.'));
 		}
 		next();
@@ -170,10 +170,10 @@ exports.init = function(server) {
 	this.chatCom = io.of('/');
 
 	this.chatInfra.on('connection', function(socket) {
-		console.log('chatInfra on connection!');
+		debug('chatInfra on connection');
 
 		socket.on('signin', function(data) {
-			console.log('name: ' + data.name + ', pass: ' + data.pass);
+			debug('name: ' + data.name + ', pass: ' + data.pass);
 			if(data.isGuest) {
 				checkAccountDuplicate(socket, data.account);
 			} else {
@@ -202,11 +202,10 @@ exports.init = function(server) {
 		});
 
 		socket.on('join_room', function(room) {
-			console.log('headers cookie: ' + socket.handshake.headers.cookie);
+			debug('headers cookie: ' + socket.handshake.headers.cookie);
 			var userName = socket.request.nickname;
 			addUser(room.name, userName);
 			// var userName = socket.username;
-			//console.log('socket.handshake: ' + socket.handshake);
 			socket.userName = userName;
 			socket.emit('name_set', {
 				name: userName
@@ -260,7 +259,7 @@ exports.init = function(server) {
 		});
 
 		socket.on('signup', function(data) {
-			console.log('account: ' + data.account + ' ,pass: ' + data.pass);
+			debug('account: ' + data.account + ' ,pass: ' + data.pass);
 			client.select(name_pass_db, redis.print);
 			client.sadd(registered_account_key, data.account, function(err, result) {
 				if(err) {
@@ -286,18 +285,17 @@ exports.init = function(server) {
 	});
 	
 	this.chatCom.on('connection', function(socket) {
-
-		console.log('Server on connection');
+		debug('Server on connection');
 		// handle client's messages
 
 		socket.on('message', function(message) { // triggered by socket.send
-			console.log('server received message');
+			debug('server received message');
 			message = JSON.parse(message);
 			// receive user's message
 			if(message.type == 'userMessage') {
-				console.log('message.type == userMessage');
+				debug('message.type == userMessage');
 				message.username = socket.request.nickname;
-				console.log('message.username: ' + message.username);
+				debug('message.username: ' + message.username);
 				// send to all the other clients
 				socket.in(socket.room).broadcast.send(JSON.stringify(message));
 				// send back the message 
