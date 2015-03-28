@@ -226,10 +226,7 @@ exports.init = function(server) {
 			if (sigTool.unsign(data.userID, util.key) == false) {
 				debug('auth_fail');
 				socket.emit('auth_fail', {});
-			} else {
-				debug('auth_success');
-				socket.emit('auth_success', {});
-			}
+			} 
 		});
 
 		// #4
@@ -303,6 +300,7 @@ exports.init = function(server) {
 
 		socket.on('disconnect', function() {
 			// FIXME this function triggered when switching from the 1st page to the 2nd page.
+			debug('client ' + socket.userName + ' disconnected');
 			socket.in(socket.room).broadcast.emit('user_left', {
 				name: socket.userName
 			});

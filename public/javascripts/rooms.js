@@ -16,33 +16,16 @@ chatInfra.on('connect', function() {
 			var roomDiv = '<div class="room_div"><span class="room_name">' + 
 					room + '</span><span class="room_users">[ ' +  
 					Object.keys(rooms['room_'+room]).length + 
-					' Users ] </span><button type="button" onclick=enterRoom(' + 
-					room + ')>Join</button></div>';
+					' Users ] </span><button type="button" onclick=enterRoom("' + 
+					room + '")>Join</button></div>';
 			$('#rooms_list').append(roomDiv);
 		}
 	});
-
-	/*
-	chatInfra.on('name_duplicated', function(data) {
-		window.alert('The name ' + data.name + ' is currently in use');
-	});
-	chatInfra.on('name_allowed', function(data) {
-		window.location = '/chatroom?room=' + data.room;
-	});
-	*/
 });
 
 function enterRoom(roomName) {
 	window.location = '/chatroom?room=' + roomName;
 }
-/*
-function checkDuplicateName(pRoom, pName, action) {
-	chatInfra.emit('check_duplicate', {
-		room: pRoom,
-		name: pName
-	});
-}
-*/
 
 function getURLParams(target) {
 	var params = location.search;

@@ -38,8 +38,5 @@ function authenticateUser(cookie) {
 socket.on('auth_fail', function(data) {
     // log out?
     console.log('auth_fail');
-});
-
-socket.on('auth_success', function(data) {
-    console.log('auth_success');
+    window.location = '/';
 });
