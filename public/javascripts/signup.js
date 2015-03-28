@@ -18,10 +18,8 @@ $('#signupFormSubmit').click(function() {
 	console.log('signupFormSubmit clicked');
 });
 
-socket.on('account_register_ok', function(data) {
-	console.log('account_register_ok: ' + data.account);
+$(function() {
+	authenticateUser();
+	//console.log('signup page');
 });
 
-socket.on('acount_already_registerd', function(data) {
-	console.log('acount_already_registerd: ' + data.account);
-});

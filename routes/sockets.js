@@ -2,6 +2,10 @@ var debug = require('debug')('chatroom');  // chatroom is the name of the logger
 var io = require('socket.io');
 var redis = require('redis');
 var redisStore = require('socket.io-redis');
+var crypto = require('crypto');
+var sigTool = require('cookie-signature');
+var util = require('./utilServer');
+
 var client = redis.createClient();
 
 var default_db = 0;
@@ -10,6 +14,9 @@ var name_pass_db = 1;
 var registered_account_key = 'regAccounts';
 var guest_account_key = 'guestAccounts';
 var accountPass_key = 'accountToPass';
+
+//var chatInfra = io.connect('/');
+//var chatCom = io.connect('/');
 
 client.on("error", function (err) {
 	console.log("Redis Error: " + err);
@@ -70,8 +77,10 @@ function addUser(roomName, userName) {
 	client.sadd('roomList', roomName, redis.print);
 }
 
-function validateUser(socket, pAccount, pPass) {
+function signInValidateUser(socket, pAccount, pPass) {
+	debug('signInValidateUser');
 	client.select(name_pass_db, redis.print);
+	// check if the account exists in the database
 	client.sismember(registered_account_key, pAccount, function(err, result) {
 		if(err) {
 			console.log('isValidUser error: ' + err);
@@ -84,10 +93,13 @@ function validateUser(socket, pAccount, pPass) {
 					console.log('isValidUser error: ' + err);
 					return;
 				}
-				console.log('hget accountPass result: ' + result);
+				debug('hget accountPass result: ' + result);
+				debug('hget accountPass pPass: ' + pPass);
 				if(result == pPass) {
+					debug('result == pPass');
+					var signedCookie = sigTool.sign(pAccount, util.key);
 					socket.emit('validUser', {
-						account: pAccount
+						userID: signedCookie
 					});
 				} else {
 					socket.emit('invalidUser', {
@@ -109,7 +121,7 @@ function tellEveryClient(socket, roomName, message) {
 	socket.in(roomName).broadcast.send(JSON.stringify(message));
 }
 
-function checkAccountDuplicate(pSocket, pAccount) {
+function signInCheckAccountDuplicate(pSocket, pAccount) {
 	client.sismember(guest_account_key, pAccount, function(err, result) {
 		if(err) {
 			console.log('isValidUser error: ' + err);
@@ -118,7 +130,8 @@ function checkAccountDuplicate(pSocket, pAccount) {
 		if(result == 1) {
 			// the user name is already in use
 			pSocket.emit('invalidUser', {
-				account: pAccount
+				account: pAccount,
+				msg: 'The name ' + pAccount + ' is already in use.' 
 			});
 		} else {
 			// check registered accounts
@@ -132,9 +145,11 @@ function checkAccountDuplicate(pSocket, pAccount) {
 						account: pAccount
 					});
 				} else {
+					debug('ready to emit validUser');
 					client.sadd(guest_account_key, pAccount, redis.print);
+					var signedCookie = sigTool.sign(pAccount, util.key);
 					pSocket.emit('validUser', {
-						account: pAccount
+						userID: signedCookie
 					});
 				}
 			});
@@ -159,26 +174,62 @@ exports.init = function(server) {
 			data.cookie = require('cookie').parse(data.headers.cookie);
 			//data.sessionID = data.cookie['express.sid'].split('.')[0];
 			data.sessionID = data.cookie['io'];
-			data.nickname = data.cookie['nickname'];
+			data.userID = data.cookie['userID'];
 		} else {
 			next(new Error('No cookie transmitted.'));
 		}
 		next();
 	});
 	var self = this;
-	this.chatInfra = io.of('/');
-	this.chatCom = io.of('/');
+	//this.chatInfra = io.of('/');
+	//this.chatCom = io.of('/');
 
-	this.chatInfra.on('connection', function(socket) {
-		debug('chatInfra on connection');
+	//this.chatInfra.on('connection', function(socket) {
+	io.sockets.on('connection', function(socket) {
+		socket.on('signup', function(data) {
+			debug('account: ' + data.account + ' ,pass: ' + data.pass);
+			client.select(name_pass_db, redis.print);
+			client.sadd(registered_account_key, data.account, function(err, result) {
+				if(err) {
+					console.log('account ' + data.account + ' duplicated');
+					client.select(default_db, redis.print);
+					return;
+				}
+				if(result == 1) {
+					var signedCookie = sigTool.sign(data.account, util.key);
+					client.hset(accountPass_key, data.account, data.pass);		
+					socket.emit('account_register_ok', {
+						userID: signedCookie
+					});
+				} else {
+					socket.emit('acount_already_registerd', {
+						account: data.account
+					});
+				}
+				client.select(default_db, redis.print);
+			});
+			
+		});
 
 		socket.on('signin', function(data) {
 			debug('name: ' + data.name + ', pass: ' + data.pass);
 			if(data.isGuest) {
-				checkAccountDuplicate(socket, data.account);
+				debug('isGuest');
+				signInCheckAccountDuplicate(socket, data.account);
 			} else {
-				validateUser(socket, data.account, data.pass);
+				signInValidateUser(socket, data.account, data.pass);
 			}	
+		});
+
+		socket.on('authenticate', function(data) {
+			debug('cookie: ' + data.userID);
+			if (sigTool.unsign(data.userID, util.key) == false) {
+				debug('auth_fail');
+				socket.emit('auth_fail', {});
+			} else {
+				debug('auth_success');
+				socket.emit('auth_success', {});
+			}
 		});
 
 		// #4
@@ -203,7 +254,7 @@ exports.init = function(server) {
 
 		socket.on('join_room', function(room) {
 			debug('headers cookie: ' + socket.handshake.headers.cookie);
-			var userName = socket.request.nickname;
+			var userName = util.extractUserName(socket.request.userID); // FIXME userID not defined here
 			addUser(room.name, userName);
 			// var userName = socket.username;
 			socket.userName = userName;
@@ -216,9 +267,8 @@ exports.init = function(server) {
 			}));
 
 			socket.join(room.name); 	// _infra joins
-			var comSocket = self.chatCom.connected[socket.id];
-			//comSocket.join(room.name); 	// _com joins 
-			comSocket.room = room.name;
+			//var comSocket = self.chatCom.connected[socket.id];
+			socket.room = room.name;
 			socket.in(room.name).broadcast.emit('user_entered', {
 				name: userName
 			});	
@@ -237,7 +287,7 @@ exports.init = function(server) {
 		});
 
 		socket.on('get_rooms', function() {
-			console.log('get_rooms received');
+			debug('get_rooms received');
 			var rooms = {};
 			for(var room in io.sockets.adapter.rooms) {
 				// filter out rooms created by node.js
@@ -247,6 +297,7 @@ exports.init = function(server) {
 					rooms[room] = io.sockets.adapter.rooms[room];
 				}
 			}
+			debug('rooms: ' + rooms);
 			socket.emit('rooms_list', rooms);
 		});
 
@@ -258,43 +309,14 @@ exports.init = function(server) {
 			removeUser(socket.room, socket.userName);
 		});
 
-		socket.on('signup', function(data) {
-			debug('account: ' + data.account + ' ,pass: ' + data.pass);
-			client.select(name_pass_db, redis.print);
-			client.sadd(registered_account_key, data.account, function(err, result) {
-				if(err) {
-					console.log('account ' + data.account + ' duplicated');
-					client.select(default_db, redis.print);
-					return;
-				}
-				if(result == 1) {
-					client.hset(accountPass_key, data.account, data.pass);
-					socket.emit('account_register_ok', {
-						account: data.account
-					});
-				} else {
-					socket.emit('acount_already_registerd', {
-						account: data.account
-					});
-				}
-				client.select(default_db, redis.print);
-			});
-			
-		});
-
-	});
-	
-	this.chatCom.on('connection', function(socket) {
-		debug('Server on connection');
 		// handle client's messages
-
 		socket.on('message', function(message) { // triggered by socket.send
 			debug('server received message');
 			message = JSON.parse(message);
 			// receive user's message
 			if(message.type == 'userMessage') {
 				debug('message.type == userMessage');
-				message.username = socket.request.nickname;
+				message.username = util.extractUserName(socket.request.userID);
 				debug('message.username: ' + message.username);
 				// send to all the other clients
 				socket.in(socket.room).broadcast.send(JSON.stringify(message));

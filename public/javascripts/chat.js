@@ -72,6 +72,8 @@ if(roomName) {
 }
 
 $(function() {
+	authenticateUser();
+	//console.log('chat page');
 	// execute the following code once the document is ready
 	$('#setname').click(function() {
 		// user sets his name

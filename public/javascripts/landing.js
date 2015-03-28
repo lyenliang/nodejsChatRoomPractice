@@ -14,39 +14,64 @@ function loginAsGuestListener() {
 }
 
 function enterLobby(pAccount) {
-	var now = new Date();
-	var time = now.getTime();
-	var expireTime = time + 180*24*60*60*1000; // 180 days
-	now.setTime(expireTime);
-
-	document.cookie = 'nickname=' + pAccount + ';expires=' + now.toGMTString() + ';path=/';
+	// setCookie('nickname', pAccount, 180*24*60*60);
 	window.location = '/rooms?name=' + pAccount;	
 }
 
 socket.on('validUser', function(data) {
-	enterLobby(data.account);
+	setCookie('userID', data.userID, 180*24*60*60);
+	var useName = data.userID.slice(0, data.userID.lastIndexOf('.'));
+	enterLobby(useName);
 });
 
 socket.on('invalidUser', function(data) {
-	alert('Sign in fails');
+	if(data.msg) {
+		alert(data.msg);
+	} else {
+		alert('Sign in fails');
+	}
+});
+
+socket.on('account_register_ok', function(data) {
+	console.log('account_register_ok: ' + data.account);
+	setCookie('userID', data.account, 180*24*60*60);
+	// take user to the lobby
+	var userName = data.userID.slice(0, data.userID.lastIndexOf('.'));
+	enterLobby(userName);
+});
+
+socket.on('acount_already_registerd', function(data) {
+	console.log('acount_already_registerd: ' + data.account);
 });
 
 $(function() {
 	$('#signUpBtn').popup();
-	if(getCookie('nickname') != "") {
+	/*
+	var cookie = getCookie('userID');
+	if(cookie != "") {
+		// authenticate this userID
+		authenticateUser(cookie);
 		window.location = 'rooms';
 	}
+	*/
 
 	$('#startchat').click(function() {
+		var isGuest = document.getElementById('loginAsGuest').checked;
 		var name = $('#nickname').val();
+		var passwd = $('#passwd').val();
+
 		if(name == '') {
 			alert('Nickname is required.');
+			return;
+		}
+		if(!isGuest && passwd == '') {
+			alert('Pass word is required.');
 			return;
 		}
 		socket.emit('signin', {
 			account: name,
 			pass: $('#passwd').val(),
-			isGuest: document.getElementById('loginAsGuest').checked
+			isGuest: isGuest
 		});		
 	});
 });
