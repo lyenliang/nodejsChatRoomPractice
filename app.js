@@ -2,7 +2,6 @@ var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
-//var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var sessionstore = require('sessionstore');
 var session = require('express-session');
@@ -10,6 +9,7 @@ var RedisStore = require('connect-redis')(session);
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var sockets = require('./routes/sockets')
 
 var app = express();
 
@@ -17,6 +17,7 @@ var sessionStore = new RedisStore();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+
 //app.set('env', 'production');
 
 // uncomment after placing your favicon in /public
@@ -41,6 +42,7 @@ app.use('/users', users);
 app.use('/chatroom', routes.chatroom);
 app.use('/rooms', routes.rooms);
 app.use('/signup', routes.signup)
+app.use('/authenticate', sockets.authenticate);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

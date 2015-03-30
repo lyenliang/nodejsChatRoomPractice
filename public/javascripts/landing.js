@@ -44,16 +44,19 @@ socket.on('acount_already_registerd', function(data) {
 	console.log('acount_already_registerd: ' + data.account);
 });
 
+socket.on('auth_success', function(data) {
+	data.callback();
+});
+
 $(function() {
 	$('#signUpBtn').popup();
-	/*
+	
 	var cookie = getCookie('userID');
 	if(cookie != "") {
 		// authenticate this userID
-		authenticateUser(cookie);
-		window.location = 'rooms';
+		authenticateUser();
 	}
-	*/
+	
 
 	$('#startchat').click(function() {
 		var isGuest = document.getElementById('loginAsGuest').checked;

@@ -27,16 +27,26 @@ function deleteCookie( name ) {
 }
 
 function authenticateUser(cookie) {
+    //console.log('what is callback: ' + callback);
     if(cookie == null) {
         cookie = getCookie('userID');
     }
-	socket.emit('authenticate', {
-		userID: cookie
-	});
+    var data = {
+        userID: cookie
+    }
+    console.log('util cookie: ' + data.userID);
+    $.post('/authenticate', data, function(result) {
+        console.log('authenticate result received');
+        if(result.msg == 'auth_success') {
+            console.log('auth_success');
+            if(window.location.pathname == '/') {
+                window.location = '/rooms?name=' + result.name;
+            }
+        } else if (result.msg == 'auth_fail') {
+            console.log('auth_fail');
+            if(window.location.pathname != '/') {
+                window.location = '/';  
+            }
+        }
+    });
 }
-
-socket.on('auth_fail', function(data) {
-    // log out?
-    console.log('auth_fail');
-    window.location = '/';
-});

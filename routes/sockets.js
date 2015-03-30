@@ -5,6 +5,8 @@ var redisStore = require('socket.io-redis');
 var crypto = require('crypto');
 var sigTool = require('cookie-signature');
 var util = require('./utilServer');
+var express = require('express');
+var router = express.Router();
 
 var client = redis.createClient();
 
@@ -157,6 +159,26 @@ function signInCheckAccountDuplicate(pSocket, pAccount) {
 	});
 }
 
+module.exports.router = router;
+
+exports.authenticate = function(req, res) {
+	debug('cookie: ' + req.body.userID);
+	var userName = util.extractUserName(req.body.userID);
+	removeUser(userName);
+	if (sigTool.unsign(req.body.userID, util.key) == false) {
+		debug('auth_fail');	
+		res.send({
+			msg: 'auth_fail'
+		});
+	} else {
+		debug('auth_success');
+		res.send({
+			msg: 'auth_success',
+			name: userName
+		});
+	}
+}
+
 exports.init = function(server) {
 	client.flushdb(redis.print);
 	debug('Server initialized');
@@ -227,7 +249,13 @@ exports.init = function(server) {
 				debug('auth_fail');
 				removeUser(util.extractUserName(data.userID));
 				socket.emit('auth_fail', {});
-			} 
+			} else {
+				console.log('data.callback: ' + data.callback);
+				debug('auth_success');
+				socket.emit('auth_success', {
+					callback: data.callback
+				})
+			}
 		});
 
 		// #4
@@ -324,6 +352,6 @@ exports.init = function(server) {
 				socket.send(JSON.stringify(message));
 			}
 		});
-
 	});
 }
+

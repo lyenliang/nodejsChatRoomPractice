@@ -20,6 +20,5 @@ $('#signupFormSubmit').click(function() {
 
 $(function() {
 	authenticateUser();
-	//console.log('signup page');
 });
 
