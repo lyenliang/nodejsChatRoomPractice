@@ -45,16 +45,17 @@ function showData(err, data) {
 	}
 }
 
-function removeUser(roomName, userName) {
+function removeUser(userName, roomName) {
 	client.sismember('roomList', roomName, function(err, result) {
 		if (err) {
 			console.log('sismember err: ' + err);
 			return;
 		}
 		// user userName is in room roomName
+		client.srem(guest_account_key, userName, redis.print);
+		client.srem(registered_account_key, userName, redis.print);
 		if(result == 1) {
 			client.srem(roomName, userName, redis.print);
-			client.srem(guest_account_key, userName, redis.print);
 			// ckeck the number of users in the room
 			client.scard(roomName, function(err, result) {
 				if (err) {
@@ -68,7 +69,6 @@ function removeUser(roomName, userName) {
 			});
 		} 
 	});
-
 }
 
 function addUser(roomName, userName) {
@@ -225,6 +225,7 @@ exports.init = function(server) {
 			debug('cookie: ' + data.userID);
 			if (sigTool.unsign(data.userID, util.key) == false) {
 				debug('auth_fail');
+				removeUser(util.extractUserName(data.userID));
 				socket.emit('auth_fail', {});
 			} 
 		});
@@ -251,7 +252,7 @@ exports.init = function(server) {
 
 		socket.on('join_room', function(room) {
 			debug('headers cookie: ' + socket.handshake.headers.cookie);
-			var userName = util.extractUserName(socket.request.userID); // FIXME userID not defined here
+			var userName = util.extractUserName(socket.request.userID);
 			addUser(room.name, userName);
 			// var userName = socket.username;
 			socket.userName = userName;
@@ -304,7 +305,7 @@ exports.init = function(server) {
 			socket.in(socket.room).broadcast.emit('user_left', {
 				name: socket.userName
 			});
-			removeUser(socket.room, socket.userName);
+			removeUser(socket.userName, socket.room);
 		});
 
 		// handle client's messages
