@@ -29,19 +29,3 @@ exports.signup = function(req, res) {
 		title: 'Sign Up'
 	});
 }
-
-exports.authenticate = function(req, res) {
-	debug('cookie: ' + req.body.userID);
-	if (sigTool.unsign(req.body.userID, util.key) == false) {
-		debug('auth_fail');
-		var userName = util.extractUserName(req.body.userID);
-		removeUser(userName);	 // this is not the removeUser defined in sockets
-		res.send({msg: 'auth_fail'});
-	} else {
-		debug('auth_success');
-		res.send({msg: 'auth_success'});
-		//socket.emit('auth_success', {
-		//	callback: data.callback
-		//})
-	}
-}
