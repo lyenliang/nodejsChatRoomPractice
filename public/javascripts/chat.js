@@ -56,14 +56,28 @@ if(roomName) {
 
 		$('#send').click(function() {
 			// user sends the message
+			var data = {};
 			var words = $('#message').val();
 			if(words == '') {
 				return;
 			}
-			var data = {
-				message: words,
-				type: 'userMessage'
+
+			if(words.slice(0, 2) == '/p') {
+				// private message
+				var endIdx = words.indexOf(' ', 3); // assume user's name doesn't contain ' '
+				var target = words.slice(3, endIdx);
+				data = {
+					message: words.slice(endIdx+1),
+					type: 'userMessage',
+					target: target
+				}
+			} else {
+				data = {
+					message: words,
+					type: 'userMessage'
+				}	
 			}
+			
 			chatCom.send(JSON.stringify(data)); // handled by socket.on('message', ...
 			// empty the value of #message
 			$('#message').val(''); 

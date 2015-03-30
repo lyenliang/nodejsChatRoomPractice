@@ -159,6 +159,10 @@ function signInCheckAccountDuplicate(pSocket, pAccount) {
 	});
 }
 
+function extractTarget(msg) {
+
+}
+
 module.exports.router = router;
 
 exports.authenticate = function(req, res) {
@@ -342,14 +346,19 @@ exports.init = function(server) {
 			message = JSON.parse(message);
 			// receive user's message
 			if(message.type == 'userMessage') {
-				debug('message.type == userMessage');
-				message.username = util.extractUserName(socket.request.userID);
-				debug('message.username: ' + message.username);
-				// send to all the other clients
-				socket.in(socket.room).broadcast.send(JSON.stringify(message));
-				// send back the message 
-				message.type = 'myMessage';
-				socket.send(JSON.stringify(message));
+				if(message.message.slice(0, 2) == '/p') {
+					// private message
+					// var target = 
+				} else {
+					//debug('message.type == userMessage');
+					message.username = util.extractUserName(socket.request.userID);
+					//debug('message.username: ' + message.username);
+					// send to all the other clients
+					socket.in(socket.room).broadcast.send(JSON.stringify(message));
+					// send back the message 
+					message.type = 'myMessage';
+					socket.send(JSON.stringify(message));	
+				}		
 			}
 		});
 	});
