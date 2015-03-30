@@ -27,7 +27,6 @@ function deleteCookie( name ) {
 }
 
 function authenticateUser(cookie) {
-    //console.log('what is callback: ' + callback);
     if(cookie == null) {
         cookie = getCookie('userID');
     }

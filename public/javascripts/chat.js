@@ -73,15 +73,6 @@ if(roomName) {
 
 $(function() {
 	authenticateUser();
-	//console.log('chat page');
-	// execute the following code once the document is ready
-	$('#setname').click(function() {
-		// user sets his name
-		// #1
-		chatInfra.emit('set_name', {
-			name: $('#username').val()
-		});
-	});
 
 	$('#message').keyup(function(e) {
 		if(e.keyCode == 13) { // Enter key
