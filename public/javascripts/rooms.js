@@ -11,7 +11,6 @@ chatInfra.on('connect', function() {
 		console.log('receive a list of rooms from the server');
 		for(var room in rooms) {
 			room = room.replace("room_", "");
-			var name = getCookie('nickname');
 			console.log('rooms[room]: ' + rooms[room]);
 			var roomDiv = '<div class="room_div"><span class="room_name">' + 
 					room + '</span><span class="room_users">[ ' +  
@@ -56,7 +55,7 @@ $(function() {
 	});
 
 	$('#logout_btn').click(function() {
-		deleteCookie('nickname');
+		deleteCookie('userID');
 		window.location = '/';
 	});
 

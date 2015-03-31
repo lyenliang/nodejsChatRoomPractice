@@ -15,7 +15,8 @@ var name_pass_db = 1;
 
 var registered_account_key = 'regAccounts';
 var guest_account_key = 'guestAccounts';
-var accountPass_key = 'accountToPass';
+var account2Pass_key = 'accountToPass';
+var name2ID_key = 'nameToID';
 
 //var chatInfra = io.connect('/');
 //var chatCom = io.connect('/');
@@ -90,7 +91,7 @@ function signInValidateUser(socket, pAccount, pPass) {
 		}
 		if(result == 1) {
 			// check if the password is correct
-			client.hget(accountPass_key, pAccount, function(err, result) {
+			client.hget(account2Pass_key, pAccount, function(err, result) {
 				if(err) {
 					console.log('isValidUser error: ' + err);
 					return;
@@ -100,6 +101,8 @@ function signInValidateUser(socket, pAccount, pPass) {
 				if(result == pPass) {
 					debug('result == pPass');
 					var signedCookie = sigTool.sign(pAccount, util.key);
+
+					//client.hset(name2ID_key, pAccount, socket.id, redis.print);
 					socket.emit('validUser', {
 						userID: signedCookie
 					});
@@ -149,6 +152,8 @@ function signInCheckAccountDuplicate(pSocket, pAccount) {
 				} else {
 					debug('ready to emit validUser');
 					client.sadd(guest_account_key, pAccount, redis.print);
+					debug('pSocket.id: ' + pSocket.id);
+					//client.hset(name2ID_key, pAccount, pSocket.id, redis.print);
 					var signedCookie = sigTool.sign(pAccount, util.key);
 					pSocket.emit('validUser', {
 						userID: signedCookie
@@ -212,6 +217,7 @@ exports.init = function(server) {
 
 	//this.chatInfra.on('connection', function(socket) {
 	io.sockets.on('connection', function(socket) {
+
 		socket.on('signup', function(data) {
 			debug('account: ' + data.account + ' ,pass: ' + data.pass);
 			client.select(name_pass_db, redis.print);
@@ -223,7 +229,7 @@ exports.init = function(server) {
 				}
 				if(result == 1) {
 					var signedCookie = sigTool.sign(data.account, util.key);
-					client.hset(accountPass_key, data.account, data.pass);		
+					client.hset(account2Pass_key, data.account, data.pass);		
 					socket.emit('account_register_ok', {
 						userID: signedCookie
 					});
@@ -296,13 +302,13 @@ exports.init = function(server) {
 				message: 'Welcome to the chat room'
 			}));
 
-			socket.join(room.name); 	// _infra joins
+			socket.join(room.name);
 			//var comSocket = self.chatCom.connected[socket.id];
 			socket.room = room.name;
 			socket.in(room.name).broadcast.emit('user_entered', {
 				name: userName
 			});	
-
+			client.hset(name2ID_key, userName, socket.id, redis.print);
 			client.smembers(room.name, function(err, members) {
 				if(err) {
 					console.log('smembers err: ' + err);
@@ -346,9 +352,29 @@ exports.init = function(server) {
 			message = JSON.parse(message);
 			// receive user's message
 			if(message.type == 'userMessage') {
-				if(message.message.slice(0, 2) == '/p') {
+				debug('message.target: ' + message.target);
+				message.username = util.extractUserName(socket.request.userID);
+				for (var u in socket.adapter.rooms['room_r1']) {
+					console.log('users in a room: ' + u);
+				}
+				
+				if(typeof message.target !== 'undefined') {
+					debug('private msg');
 					// private message
-					// var target = 
+					message.type = 'private_message';
+					client.hget(name2ID_key, message.target, function(err, targetID) {
+						if(err) {
+							console.log('hget error: ' + err);
+							return;
+						}
+						debug('targetID: ' + targetID);
+						io.to(targetID).send(JSON.stringify(message));
+						//io.to('room_r1').send(JSON.stringify(message)); 
+					});
+					
+					// send msg back to the user
+					message.type = 'private_myMessage';
+					socket.send(JSON.stringify(message));
 				} else {
 					//debug('message.type == userMessage');
 					message.username = util.extractUserName(socket.request.userID);

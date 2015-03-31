@@ -44,11 +44,18 @@ if(roomName) {
 				for (var i = 0 ; i < data.userList.length; i++) {
 					$('#userList').append('<div class="' + data.type + '">' + data.userList[i] + '</div>');
 				}
+			} else if (data.type == 'private_myMessage') {
+
+				$('#messages').append('<div class="' + data.type + 
+					'"><span class="name"><b>' + data.username + "</b> pm <b>" + data.target + "</b>:</span>" + data.message + '</div>');
+			} else if(data.type == 'private_message') {
+				console.log('private_message received');
+				$('#messages').append('<div class="' + data.type + 
+					'"><span class="name"><b>' + data.username + "</b> pm <b>" + data.target + "</b>:</span>" + data.message + '</div>');
 			} else {
 				$('#messages').append('<div class="' + data.type + 
 					'"><span class="name"><b>' + data.username + "</b>:</span>" + data.message + '</div>');
-			}
-			
+			}	
 		});
 
 		$('#nameform').hide();
