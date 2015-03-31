@@ -19,7 +19,6 @@
     "morgan": "^1.5.1",
     "redis": "^0.12.1",
     "serve-favicon": "~2.2.0",
-    "sessionstore": "^1.0.5",
     "socket.io": "~1.2.1",
     "socket.io-redis": "^0.1.4"
   }
