@@ -14,7 +14,6 @@ function loginAsGuestListener() {
 }
 
 function enterLobby(pAccount) {
-	// setCookie('nickname', pAccount, 180*24*60*60);
 	window.location = '/rooms?name=' + pAccount;	
 }
 
