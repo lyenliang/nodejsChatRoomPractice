@@ -67,6 +67,14 @@ $(function() {
 			alert('Nickname is required.');
 			return;
 		}
+		
+		var pattern = /[^\u4e00-\u9fa5\w ]/g;
+		console.log('test result: ' + pattern.test(name));
+		if(pattern.test(name)) {
+			alert('Nickname contains invalid characters');
+			return;
+		}
+
 		if(!isGuest && passwd == '') {
 			alert('Pass word is required.');
 			return;
