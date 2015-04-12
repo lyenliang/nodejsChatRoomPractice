@@ -5,7 +5,9 @@ var redisStore = require('socket.io-redis');
 var crypto = require('crypto');
 var sigTool = require('cookie-signature');
 var util = require('./utilServer');
+var config = require('./config');
 var express = require('express');
+var mysql = require('mysql');
 var router = express.Router();
 
 var client = redis.createClient();
@@ -18,6 +20,12 @@ var guest_account_key = 'guestAccounts';
 var account2Pass_key = 'accountToPass';
 var name2ID_key = 'nameToID';
 
+
+var connection = mysql.createConnection({
+  host     : config.mysql_host,
+  user     : config.mysql_user,
+  password : config.mysql_pass
+});
 //var chatInfra = io.connect('/');
 //var chatCom = io.connect('/');
 
