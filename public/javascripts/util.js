@@ -49,17 +49,3 @@ function authenticateUser(cookie) {
         }
     });
 }
-
-function getURLParameter(par, query) {
-    query = query.substr(1);
-    //var query = location.search.substr(1); // remove "?" at the beginning
-    var params = query.split('&');
-    for(var i = 0; i < params.length; i++) {
-        var keyVal = params[i].split('=');
-        console.log('keyVal[0]: ' + keyVal[0]);
-        if(keyVal[0] == par) {
-            return keyVal[1];
-        }
-    }
-    return null;
-}

@@ -19,19 +19,9 @@ function removeUser(target) {
 if(roomName) {
 	roomName = 'room_' + roomName;
 	// #3
-	if(share_session == true) {
-		chatInfra.emit('join_room', {
-			name: roomName
-		});	
-	} else {
-		var userName = getURLParameter('name', location.search); // FIXME location.search doesn't contain user's name here!
-		console.log('userName: ' + userName);
-		chatInfra.emit('join_room', {
-			name: roomName,
-			userName: userName
-		});	
-	}
-	
+	chatInfra.emit('join_room', {
+		name: roomName
+	});
 	chatInfra.on('name_set', function(data) {
 		// #5
 		chatInfra.on('user_entered', function(user) {

@@ -50,13 +50,12 @@ socket.on('auth_success', function(data) {
 $(function() {
 	$('#signUpBtn').popup();
 	
-	if(share_session) {
-		var cookie = getCookie('userID');
-		if(cookie != "") {
-			// authenticate this userID
-			authenticateUser();
-		}	
+	var cookie = getCookie('userID');
+	if(cookie != "") {
+		// authenticate this userID
+		authenticateUser();
 	}
+	
 
 	$('#startchat').click(function() {
 		var isGuest = document.getElementById('loginAsGuest').checked;
@@ -69,7 +68,7 @@ $(function() {
 		}
 		
 		var pattern = /[^\u4e00-\u9fa5\w ]/g;
-		
+		console.log('test result: ' + pattern.test(name));
 		if(pattern.test(name)) {
 			alert('Nickname contains invalid characters');
 			return;
