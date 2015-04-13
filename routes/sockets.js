@@ -20,14 +20,14 @@ var guest_account_key = 'guestAccounts';
 var account2Pass_key = 'accountToPass';
 var name2ID_key = 'nameToID';
 
-
 var connection = mysql.createConnection({
   host     : config.mysql_host,
   user     : config.mysql_user,
-  password : config.mysql_pass
+  password : config.mysql_pass,
+  database : config.mysql_db
 });
-//var chatInfra = io.connect('/');
-//var chatCom = io.connect('/');
+
+connection.connect();
 
 client.on("error", function (err) {
 	console.log("Redis Error: " + err);
@@ -238,6 +238,10 @@ exports.init = function(server) {
 				if(result == 1) {
 					var signedCookie = sigTool.sign(data.account, util.key);
 					client.hset(account2Pass_key, data.account, data.pass);		
+					connection.query("INSERT INTO users (account, password) VALUES (\'" + data.account + "\', \'" + data.pass + "\')", function (err, rows, fields) {
+						if(err) throw err;
+						console.log('account: ' + data.account + ' inserted');
+					});
 					socket.emit('account_register_ok', {
 						userID: signedCookie
 					});
