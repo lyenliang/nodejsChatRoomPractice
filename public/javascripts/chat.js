@@ -71,8 +71,15 @@ if(roomName) {
 
 			if(words.slice(0, 2) == '/p') {
 				// private message
-				var endIdx = words.indexOf(' ', 3); // assume user's name doesn't contain ' '
-				var target = words.slice(3, endIdx);
+				var target = null;
+				var endIdx = null;
+				if(words.charAt(3) == '\"') {
+					endIdx = words.indexOf('\"', 4);
+					target = words.slice(4, endIdx);
+				} else {
+					endIdx = words.indexOf(' ', 3); // assume user's name doesn't contain ' '
+					target = words.slice(3, endIdx);
+				}
 				data = {
 					message: words.slice(endIdx+1),
 					type: 'userMessage',
