@@ -3,9 +3,7 @@ var chatInfra = io.connect('/');
 chatInfra.on('connect', function() {
 
 	console.log('trigger get_rooms');
-	chatInfra.emit('get_rooms', {
-		
-	});
+	//chatInfra.emit('get_rooms', {});
 
 	chatInfra.on('rooms_list', function(rooms) {
 		console.log('receive a list of rooms from the server');

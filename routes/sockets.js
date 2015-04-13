@@ -168,6 +168,18 @@ function extractTarget(msg) {
 
 }
 
+function tellClientRooms(socket) {
+	var rooms = {};
+	for(var room in io.sockets.adapter.rooms) {
+		// filter out rooms created by node.js
+		if(room.indexOf('room_') == 0) { // room_ room name must starts with "room_"
+			rooms[room] = io.sockets.adapter.rooms[room];
+		}
+	}
+	debug('rooms: ' + rooms);
+	socket.emit('rooms_list', rooms);
+}
+
 module.exports.router = router;
 
 exports.authenticate = function(req, res) {
@@ -217,6 +229,8 @@ exports.init = function(server) {
 
 	//this.chatInfra.on('connection', function(socket) {
 	io.sockets.on('connection', function(socket) {
+
+		tellClientRooms(socket);
 
 		socket.on('signup', function(data) {
 			debug('account: ' + data.account + ' ,pass: ' + data.pass);
@@ -289,6 +303,7 @@ exports.init = function(server) {
 		});
 
 		socket.on('join_room', function(room) {
+			// TODO if (share_session == false) {dont't use the user name inside the cookie}
 			debug('headers cookie: ' + socket.handshake.headers.cookie);
 			var userName = util.extractUserName(socket.request.userID);
 			addUser(room.name, userName);
@@ -322,20 +337,12 @@ exports.init = function(server) {
 			});
 		});
 
+		/*
 		socket.on('get_rooms', function() {
 			debug('get_rooms received');
-			var rooms = {};
-			for(var room in io.sockets.adapter.rooms) {
-				// filter out rooms created by node.js
-				if(room.indexOf('room_') == 0) { // room_ room name must starts with "room_"
-					// var roomName = room.replace("room_", "");
-					// rooms[roomName] = io.sockets.adapter.rooms[room];
-					rooms[room] = io.sockets.adapter.rooms[room];
-				}
-			}
-			debug('rooms: ' + rooms);
-			socket.emit('rooms_list', rooms);
+			tellClientRooms(socket);
 		});
+		*/
 
 		socket.on('disconnect', function() {
 			// FIXME this function triggered when switching from the 1st page to the 2nd page.
