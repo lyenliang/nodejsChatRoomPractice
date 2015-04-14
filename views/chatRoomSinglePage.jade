@@ -1,0 +1,68 @@
+html
+  head
+    title A Chat Room made with node.js express and redis
+    script(type='text/javascript', src='/javascripts/jquery-1.11.2.min.js')
+    script(type='text/javascript', src='/javascripts/avgrund.js')
+    link(type='text/css', rel='stylesheet', href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic')
+    link(type='text/css', rel='stylesheet', href='/stylesheets/style_s.css')
+    link(type='text/css', rel='stylesheet', href='/stylesheets/animate.css')
+    link(type='text/css', rel='stylesheet', href='/stylesheets/avgrund.css')
+  body
+    div.avgrund-contents
+      header
+        h1 Chat Room
+      div.pr.center.wrapper
+        div.cf.pr.chat
+          div.pa.chat-shadow
+            div.content
+              | Click 
+              div.big-button-green.start Start
+              | to begin
+
+          div.cf.chat-top
+            div.fl.chat-left
+              div.chat-messages
+                ul
+            div.fl.chat-right
+              div.chat-clients
+                div.cf.title
+                  div.fl Users
+              div.chat-rooms
+                div.cf.title
+                  div.fl
+                    | Rooms
+                  div.fr.title-button +
+                ul.pr
+          div.cf.chat-bottom
+            div.fl.chat-input
+              input(type='text', placeholder='input message here...')
+            div.fl.chat-submit
+              button
+                | Send &rarr;
+    aside#nickname-popup.popup.animate.avgrund-popup
+      .title Enter your nickname
+      .content Please enter a nickname
+      .input
+        input(type='text', maxlength='16', placeholder='nickname')
+      .big-button-green.small.begin Begin 
+      .big-button-green.small.signin SignIn
+      .big-button-green.small.signup SignUp
+    aside#signin-popup.popup.animate.avgrund-popup
+      .title Sign In
+      .content Enter your name and password
+      input#nickname(type='text', placeholder='Enter a nickname')
+      input#passwd(type='password', placeholder='Enter your password')
+    aside#signup-popup.popup.animate.avgrund-popup
+      .title Sign Up
+      input#nickname(type='text', placeholder='Enter a nickname')
+      input#passwd(type='password', placeholder='Enter your password')
+    aside#addroom-popup.popup.animate.avgrund-popup
+      .title Enter a room nickname
+      .content Room name up to 10 characters
+      .input
+        input(type='text', maxlength='10', placeholder='room name...')
+      .big-button-green.small.create Create &rarr;
+    .avgrund-cover
+    script(type='text/javascript', src='/socket.io/socket.io.js')
+    script(type='text/javascript', src='/javascripts/util.js')
+    script(type='text/javascript', src='/javascripts/chatRoomSinglePage.js')

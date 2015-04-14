@@ -40,8 +40,10 @@ app.use(routes.router);
 app.use('/users', users);
 app.use('/chatroom', routes.chatroom);
 app.use('/rooms', routes.rooms);
-app.use('/signup', routes.signup)
+app.use('/signup', routes.signup);
+app.use('/single', routes.chatroom_singlepage);
 app.use('/authenticate', sockets.authenticate);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

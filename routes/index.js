@@ -29,3 +29,7 @@ exports.signup = function(req, res) {
 		title: 'Sign Up'
 	});
 }
+
+exports.chatroom_singlepage = function(req, res) {
+	res.render('chatRoomSinglePage', {});
+}
