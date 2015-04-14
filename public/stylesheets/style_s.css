@@ -33,7 +33,7 @@ abbr,acronym {border:0;}
 html, 
 body {
 	height:100%;
-	overflow: hidden
+	overflow: scroll
 }
 
 html {
@@ -61,7 +61,7 @@ iframe{text-align:center !important;}
 	text-align:center;
 	font-size:28px;
 	color:#fff;
-	overflow:hidden;
+	overflow:scroll;
 }
 .wrapper .chat .chat-shadow .content{
 	margin-top:266px;
