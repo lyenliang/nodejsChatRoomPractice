@@ -64,7 +64,7 @@ iframe{text-align:center !important;}
 	overflow:hidden;
 }
 .wrapper .chat .chat-shadow .content{
-	margin-top:220px;
+	margin-top:266px;
 }
 .big-button-green{
 	padding:5px 20px;
@@ -157,10 +157,13 @@ iframe{text-align:center !important;}
 
 .chat .chat-top .chat-right .chat-rooms{
 	width:200px;
-	height:220px;
+	height:267px;
 }
 .chat .chat-top .chat-right .chat-clients div:first-child{border-radius:0 15px 0 0;}
-.chat .chat-top .chat-right .chat-clients{width:200px;height:220px;}
+.chat .chat-top .chat-right .chat-clients{
+	width:200px;
+	height:266px;
+}
 .chat .chat-top .chat-left{
 	width:759px;
 	height:533;
