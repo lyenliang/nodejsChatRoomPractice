@@ -18,8 +18,7 @@ var guest_account_key = 'guestAccounts';
 var account2Pass_key = 'accountToPass';
 var name2ID_key = 'nameToID';
 
-//var chatInfra = io.connect('/');
-//var chatCom = io.connect('/');
+var current_online_user_key = 'currentlyOnlineAccounts';
 
 client.on("error", function (err) {
 	console.log("Redis Error: " + err);
@@ -126,6 +125,14 @@ function tellEveryClient(socket, roomName, message) {
 	socket.in(roomName).broadcast.send(JSON.stringify(message));
 }
 
+function isAccountCurrentlyInUse(socket, callback) {
+
+}
+
+function isAccountAlreadyRegistered(socket, callback) {
+
+}
+
 function signInCheckAccountDuplicate(pSocket, pAccount) {
 	client.sismember(guest_account_key, pAccount, function(err, result) {
 		if(err) {
@@ -181,6 +188,7 @@ exports.authenticate = function(req, res) {
 		});
 	} else {
 		debug('auth_success');
+		// add user to connected list?
 		res.send({
 			msg: 'auth_success',
 			name: userName
@@ -212,12 +220,10 @@ exports.init = function(server) {
 		next();
 	});
 	var self = this;
-	//this.chatInfra = io.of('/');
-	//this.chatCom = io.of('/');
 
 	//this.chatInfra.on('connection', function(socket) {
 	io.sockets.on('connection', function(socket) {
-
+		debug('connection event');
 		socket.on('signup', function(data) {
 			debug('account: ' + data.account + ' ,pass: ' + data.pass);
 			client.select(name_pass_db, redis.print);
@@ -352,7 +358,9 @@ exports.init = function(server) {
 			message = JSON.parse(message);
 			// receive user's message
 			if(message.type == 'userMessage') {
-				debug('message.target: ' + message.target);
+				//debug('message.target: ' + message.target);
+				debug('socket.request.userID: ' + socket.request.userID);
+				debug('Object.keys(socket.request): ' + Object.keys(socket.request));
 				message.username = util.extractUserName(socket.request.userID);
 				for (var u in socket.adapter.rooms['room_r1']) {
 					console.log('users in a room: ' + u);
