@@ -2,7 +2,6 @@ html
   head
     title A Chat Room made with node.js express and redis
     script(type='text/javascript', src='/javascripts/jquery-1.11.2.min.js')
-    script(type='text/javascript', src='/javascripts/avgrund.js')
     link(type='text/css', rel='stylesheet', href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic')
     link(type='text/css', rel='stylesheet', href='/stylesheets/style_s.css')
     link(type='text/css', rel='stylesheet', href='/stylesheets/animate.css')
@@ -47,15 +46,27 @@ html
       .big-button-green.small.begin Begin 
       .big-button-green.small.signin SignIn
       .big-button-green.small.signup SignUp
+
     aside#signin-popup.popup.animate.avgrund-popup
       .title Sign In
       .content Enter your name and password
-      input#nickname(type='text', placeholder='Enter a nickname')
-      input#passwd(type='password', placeholder='Enter your password')
+      .input
+        input.nickname(type='text', placeholder='Enter a nickname')
+      .input
+        input.passwd(type='password', placeholder='Enter your password')
+      button#signinFormSubmit(class="btn") Sign In
+
     aside#signup-popup.popup.animate.avgrund-popup
       .title Sign Up
-      input#nickname(type='text', placeholder='Enter a nickname')
-      input#passwd(type='password', placeholder='Enter your password')
+      .content Register an account
+      .input
+        input.nickname(type='text', placeholder='Enter a nickname')
+      .input
+        input.passwd(type='password', placeholder='Enter your password')
+      .input
+        input.passwd2(type="password", placeholder='Confirm password')
+      button#signupFormSubmit(class="btn") Sign Up
+
     aside#addroom-popup.popup.animate.avgrund-popup
       .title Enter a room nickname
       .content Room name up to 10 characters
@@ -64,5 +75,6 @@ html
       .big-button-green.small.create Create &rarr;
     .avgrund-cover
     script(type='text/javascript', src='/socket.io/socket.io.js')
+    script(type='text/javascript', src='/javascripts/avgrund.js')
     script(type='text/javascript', src='/javascripts/util.js')
     script(type='text/javascript', src='/javascripts/chatRoomSinglePage.js')

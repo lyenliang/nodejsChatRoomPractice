@@ -89,4 +89,4 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-require('../routes/sockets.js').init(server);
+require('../routes/socketsSinglePage.js').init(server);

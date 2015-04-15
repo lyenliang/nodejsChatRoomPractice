@@ -211,5 +211,7 @@ iframe{text-align:center !important;}
 .popup .input input[type="text"]{font-family: 'Lato', sans-serif;padding:16px 10px;border:none;background:rgba(0, 0, 0, 0.02);box-shadow:inset 0 1px 1px #ccc;color:#4D4D4D;font-size:24px;border:solid 1px #ccc;border-radius:5px;}
 .popup .input input[type="text"]::-webkit-input-placeholder{color:#ccc;font-style:italic;}
 .popup .input input[type="text"].yellow::-webkit-input-placeholder{color:#eeb654;}
-
+.popup .input input[type="password"]{font-family: 'Lato', sans-serif;padding:16px 10px;border:none;background:rgba(0, 0, 0, 0.02);box-shadow:inset 0 1px 1px #ccc;color:#4D4D4D;font-size:24px;border:solid 1px #ccc;border-radius:5px;}
+.popup .input input[type="password"]::-webkit-input-placeholder{color:#ccc;font-style:italic;}
+.popup .input input[type="password"].yellow::-webkit-input-placeholder{color:#eeb654;}
 .popup .input input:focus{outline:none;}

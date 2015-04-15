@@ -244,7 +244,7 @@ exports.init = function(server) {
 		});
 
 		socket.on('signin', function(data) {
-			debug('name: ' + data.name + ', pass: ' + data.pass);
+			debug('name: ' + data.account + ', pass: ' + data.pass);
 			if(data.isGuest) {
 				debug('isGuest');
 				signInCheckAccountDuplicate(socket, data.account);

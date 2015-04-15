@@ -8,7 +8,8 @@ var RedisStore = require('connect-redis')(session);
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
-var sockets = require('./routes/sockets')
+var sockets = require('./routes/socketsSinglePage')
+
 
 var app = express();
 
